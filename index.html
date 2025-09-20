@@ -15,6 +15,7 @@
     <div id="start-overlay"><h1>Welcome</h1></div>
 
     <!-- Subpages -->
+    <!-- TODO: Fix overlay position on max-->
     <div id="subpage-1" class="subpage">
       <button class="close-btn" onclick="closeSubpage()">Close</button>
       <div>Page 1</div>
@@ -49,6 +50,7 @@
     </div>
 
     <!-- GALLERY OVERLAY -->
+    <!-- TODO: fix galery overlay and scrollbar work -->
     <section id="galleryOverlay" aria-hidden="true">
       <header class="galleryHeader">
         <div class="galleryTitle">Projects Gallery</div>
@@ -58,7 +60,7 @@
       </header>
       <div id="galleryScroll" class="galleryScroll" tabindex="-1">
         <div class="blobGrid" id="galleryGrid">
-          <article class="blobCard span-2x2y">
+          <article class="blobCard span-2x2y" onclick="openSubpage(1)">
             <div class="blobMeta">Project One</div>
             <div class="blobDesc">Large feature item (2x2).</div>
           </article>
@@ -143,9 +145,12 @@
     </section>
 
     <script>
+      // Subpage functions
+      //open subpage by number
       function openSubpage(pageNumber) {
         document.getElementById("subpage-" + pageNumber).style.display = "flex";
       }
+      //close all subpages
       function closeSubpage() {
         const subpages = document.querySelectorAll(".subpage");
         subpages.forEach((page) => (page.style.display = "none"));
