@@ -144,18 +144,7 @@
       </div>
     </section>
 
-    <script>
-      // Subpage functions
-      //open subpage by number
-      function openSubpage(pageNumber) {
-        document.getElementById("subpage-" + pageNumber).style.display = "flex";
-      }
-      //close all subpages
-      function closeSubpage() {
-        const subpages = document.querySelectorAll(".subpage");
-        subpages.forEach((page) => (page.style.display = "none"));
-      }
-    </script>
+    <script src="script.js"></script>
 
     <!-- Only change: imports now use esm.sh; no import maps or shims needed -->
     <script type="module">

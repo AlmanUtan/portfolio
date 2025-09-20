@@ -106,7 +106,7 @@ body {
   height: calc(100vh - 64px);
   border-radius: 24px;
   overflow: hidden;
-  z-index: 2500;
+  z-index: 999;
 
   /* Dark gray blurred background */
   backdrop-filter: blur(16px) saturate(1.05);
