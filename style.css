@@ -1,3 +1,13 @@
+/* Global resets */
+button {
+  font: inherit;
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+/* REST OF THE CODE*/
 html,
 body {
   margin: 0;
@@ -104,7 +114,7 @@ body {
   transform: translateX(-50%) translateY(100%); /* JS adjusts Y progressively */
   width: min(1400px, calc(100vw - 64px));
   height: calc(100vh - 64px);
-  border-radius: 24px;
+  border-radius: 10px;
   overflow: hidden;
   z-index: 999;
 
@@ -140,22 +150,26 @@ body {
   backdrop-filter: blur(6px);
 }
 .galleryTitle {
-  font: 600 15px/1.2 system-ui, -apple-system, Segoe UI, Roboto,
-    "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+  /* font-family: "logic-monospace", mono; */
+  font-family: "chivo-mono", sans-serif;
+  font-weight: 400;
+  font-size: 16px;
   letter-spacing: 0.02em;
+  text-transform: uppercase;
   color: #e5e7eb;
 }
 .galleryClose {
-  border: 0;
-  background: rgba(255, 255, 255, 0.12);
+  background-color: transparent;
   color: #e5e7eb;
-  padding: 8px 12px;
-  border-radius: 10px;
   cursor: pointer;
-  font-size: 14px;
+  font-family: "chivo-mono", sans-serif;
+  font-weight: 500;
+  font-size: 12px;
 }
 .galleryClose:hover {
-  background: rgba(255, 255, 255, 0.18);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-thickness: 1.5px;
 }
 
 .galleryScroll {
@@ -223,4 +237,108 @@ body {
 .blobDesc {
   font: 400 13px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Arial;
   color: #cbd5e1;
+}
+
+/* ------------------- Menu ------------------------------------------------ */
+.navigation {
+  position: fixed;
+  right: -150vw;
+  width: 100vw;
+  height: 100%;
+  background-color: #d4d4d4;
+  transition: 0.5s;
+  z-index: 10;
+}
+nav {
+  position: absolute;
+  top: 100px;
+  width: 100%;
+  height: calc(100vh - 200px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.navigation ul li {
+  font-family: "chivo-mono", sans-serif;
+  font-weight: 400;
+  color: #fff;
+  text-align: center;
+  text-transform: none;
+  list-style-type: none;
+  font-size: 96px;
+  min-height: 114px;
+  padding: 20px 30px;
+}
+.navigation ul li:not(:last-child) {
+  border-bottom: 1px solid #a1a1a1;
+  /* FIXME: adjust border width to not jump on hover */
+}
+.navigation ul li a {
+  text-decoration: none;
+  color: #000;
+  position: relative;
+}
+.navigation ul li a:hover {
+  font-family: "jacquard-12", sans-serif;
+  font-size: 128px;
+}
+.navigation ul li a::before {
+  content: "";
+  position: absolute;
+  background-color: rgba(114, 204, 119, 0.3);
+  top: 5%;
+  left: -5%;
+  width: 110%;
+  height: 80%;
+  pointer-events: none;
+  border-radius: 8px;
+  transform: rotate(var(--rand-rotate, -5deg));
+  z-index: -1;
+  opacity: 0;
+  transition: all 0.15s ease-in-out;
+}
+.navigation ul li a:hover::before {
+  opacity: 1;
+}
+.hamburger,
+.bar {
+  position: fixed;
+}
+.hamburger {
+  display: block;
+  top: 5%;
+  left: 95%;
+  width: 30px;
+  height: 30px;
+  transform: translateY(-50%);
+  border: 0;
+  background: 0 0;
+}
+
+.bar {
+  top: 3px;
+  background-color: #000;
+  width: 100%;
+  height: 4px;
+  transition: all 0.3s ease-in;
+}
+#bar2 {
+  top: 11px;
+}
+#bar3 {
+  top: 19px;
+}
+.navigation.is-active {
+  right: 0;
+}
+.hamburger.is-open #bar1 {
+  background-color: #fff;
+  transform: rotate(45deg) translate(6px, 5px);
+}
+.hamburger.is-open #bar2 {
+  background-color: transparent;
+}
+.hamburger.is-open #bar3 {
+  background-color: #fff;
+  transform: rotate(-45deg) translate(6px, -5px);
 }

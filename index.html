@@ -3,14 +3,36 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Asterisk Portfolio - Merged</title>
+    <title>Elia Römpler - Portfolio</title>
 
     <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="https://use.typekit.net/yyn5dss.css" />
   </head>
 
   <body>
+    <div class="navigation">
+      <button class="hamburger" onclick="openMenu()">
+        <div id="bar1" class="bar"></div>
+        <div id="bar2" class="bar"></div>
+        <div id="bar3" class="bar"></div>
+      </button>
+
+      <nav>
+        <ul>
+          <li><a href="">Home</a></li>
+          <li><a href="">Gallery</a></li>
+          <li><a href="">About</a></li>
+        </ul>
+      </nav>
+    </div>
+
     <div id="canvas-container"></div>
     <button id="toggle-rotation-btn">Pause Rotation</button>
+    <!--TODO: format this p with css as a note on the bottom left of the screen-->
+    <p>
+      //scroll to zoom in and out <br />
+      //press space to stop and resume the rotation
+    </p>
 
     <div id="start-overlay"><h1>Welcome</h1></div>
 
@@ -50,7 +72,7 @@
     </div>
 
     <!-- GALLERY OVERLAY -->
-    <!-- TODO: fix galery overlay and scrollbar work -->
+    <!-- TODO: fix galery overlay and transparency on the screen bottom -->
     <section id="galleryOverlay" aria-hidden="true">
       <header class="galleryHeader">
         <div class="galleryTitle">Projects Gallery</div>
@@ -64,15 +86,15 @@
             <div class="blobMeta">Project One</div>
             <div class="blobDesc">Large feature item (2x2).</div>
           </article>
-          <article class="blobCard span-2x">
+          <article class="blobCard span-2x" onclick="openSubpage(2)">
             <div class="blobMeta">Project Two</div>
             <div class="blobDesc">Wide rectangle, showcases screenshots.</div>
           </article>
-          <article class="blobCard">
+          <article class="blobCard" onclick="openSubpage(3)">
             <div class="blobMeta">Project Three</div>
             <div class="blobDesc">Compact square card.</div>
           </article>
-          <article class="blobCard span-2y">
+          <article class="blobCard span-2y" onclick="openSubpage(4)">
             <div class="blobMeta">Project Four</div>
             <div class="blobDesc">Tall rectangle with a short description.</div>
           </article>
@@ -541,6 +563,8 @@
           );
         }
 
+        // to stop/start rotation of the projects
+        // TODO: change to keydown (spacebar) event listener
         setupUI() {
           this.toggleBtn.addEventListener("click", () => {
             this.rotationEnabled = !this.rotationEnabled;
