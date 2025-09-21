@@ -267,7 +267,7 @@ nav {
   list-style-type: none;
   font-size: 96px;
   min-height: 114px;
-  padding: 20px 30px;
+  padding: 0px 30px;
 }
 .navigation ul li:not(:last-child) {
   border-bottom: 1px solid #a1a1a1;
@@ -300,6 +300,29 @@ nav {
 .navigation ul li a:hover::before {
   opacity: 1;
 }
+.navigation .socials {
+  position: absolute;
+  bottom: 50px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 66px;
+}
+.navigation .socials a {
+  font-family: "chivo-mono", sans-serif;
+  font-weight: 400;
+  color: #a1a1a1;
+  text-decoration: none;
+  font-size: 20px;
+  transition: color 0.3s;
+}
+.navigation .socials a:hover {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 2px;
+}
+/* Hamburger menu */
 .hamburger,
 .bar {
   position: fixed;
@@ -332,13 +355,11 @@ nav {
   right: 0;
 }
 .hamburger.is-open #bar1 {
-  background-color: #fff;
   transform: rotate(45deg) translate(6px, 5px);
 }
 .hamburger.is-open #bar2 {
   background-color: transparent;
 }
 .hamburger.is-open #bar3 {
-  background-color: #fff;
   transform: rotate(-45deg) translate(6px, -5px);
 }
