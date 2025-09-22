@@ -248,7 +248,7 @@
             1000
           );
           // Initial close-up
-          this.initialPosition = new THREE.Vector3(0, 0, 0.35);
+          this.initialPosition = new THREE.Vector3(0, 0, 0.5);
           this.initialLookAt = new THREE.Vector3(0, 0, 0);
           this.camera.position.copy(this.initialPosition);
           this.camera.lookAt(this.initialLookAt);
@@ -270,7 +270,7 @@
           );
           this.controls.enablePan = false;
           this.controls.enableZoom = true;
-          this.controls.minDistance = 0.35;
+          this.controls.minDistance = 0.5;
           this.controls.maxDistance = 8.0;
           this.controls.enableDamping = true;
           this.controls.dampingFactor = 0.18;
@@ -344,7 +344,7 @@
           const group = new THREE.Group();
           const armLength = size * 1.6;
           const armWidth = size * 0.35;
-          const armDepth = size * 0.3;
+          const armDepth = size * 0.45;
           const material = new THREE.MeshLambertMaterial({ color });
 
           for (let i = 0; i < 6; i++) {
