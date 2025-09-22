@@ -53,45 +53,11 @@
     </p>
 
     <div id="start-overlay"><h1>Welcome</h1></div>
-
-    <!-- Subpages -->
-    <!-- TODO: Fix overlay position on max -->
-    <div id="subpage-1" class="subpage">
-      <button class="close-btn" onclick="closeSubpage()">Close</button>
-      <div>Page 1</div>
-    </div>
-    <div id="subpage-2" class="subpage">
-      <button class="close-btn" onclick="closeSubpage()">Close</button>
-      <div>Page 2</div>
-    </div>
-    <div id="subpage-3" class="subpage">
-      <button class="close-btn" onclick="closeSubpage()">Close</button>
-      <div>Page 3</div>
-    </div>
-    <div id="subpage-4" class="subpage">
-      <button class="close-btn" onclick="closeSubpage()">Close</button>
-      <div>Page 4</div>
-    </div>
-    <div id="subpage-5" class="subpage">
-      <button class="close-btn" onclick="closeSubpage()">Close</button>
-      <div>Page 5</div>
-    </div>
-    <div id="subpage-6" class="subpage">
-      <button class="close-btn" onclick="closeSubpage()">Close</button>
-      <div>Page 6</div>
-    </div>
-    <div id="subpage-7" class="subpage">
-      <button class="close-btn" onclick="closeSubpage()">Close</button>
-      <div>Page 7</div>
-    </div>
-    <div id="subpage-8" class="subpage">
-      <button class="close-btn" onclick="closeSubpage()">Close</button>
-      <div>Page 8</div>
-    </div>
+  
 
     <!-- GALLERY OVERLAY -->
     <!-- TODO: fix galery overlay and transparency on the screen bottom -->
-    <section id="galleryOverlay" aria-hidden="true">
+  <section id="galleryOverlay" aria-hidden="true">
       
   <div id="galleryScroll" class="galleryScroll" tabindex="-1">
     <div class="galleryGrid">
@@ -103,7 +69,7 @@
         </button>
       </header>
 
-      <div class="galleryContent">
+      <div id="galleryList" class="organicGrid">
         <!-- Left big project -->
         <article class="projectCard" data-page="1">
           <!-- Compact preview -->
@@ -142,12 +108,302 @@
           </div>
         </article>
 
-        <!-- Right column of three smaller projects -->
-       <div class="rightColumn">
-          <article class="projectCard small" data-page="2" onclick="openSubpage(2)"></article>
-          <article class="projectCard small" data-page="3" onclick="openSubpage(3)"></article>
-          <article class="projectCard small" data-page="4" onclick="openSubpage(4)"></article>
-      </div>
+        <article class="projectCard" data-page="2">
+          <!-- Compact preview -->
+          <div class="cardPreview">
+            <span class="projectName">NAME PROJECT</span>
+          </div>
+
+          <!-- Expanded details -->
+          <div class="cardDetails">
+            <!-- Video -->
+            <div class="videoWrapper">
+              <iframe 
+                src="https://www.youtube.com/embed/LffGsgGHDOY?si=Cr9-wb88iON1a0uh" 
+                frameborder="0" 
+                allowfullscreen>
+              </iframe>
+            </div>
+
+            <!-- Description -->
+            <div class="projectDescription">
+              <h3>Description</h3>
+              <p>
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis posuere 
+                condimentum tellus eget tristique.
+              </p>
+            </div>
+
+            <!-- Process -->
+            <div class="projectProcess">
+              <h3>Process</h3>
+              <p>
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit. Repellendus 
+                deleniti, autem explicabo quisquam numquam accusamus.
+              </p>
+            </div>
+          </div>
+        </article>
+
+        <article class="projectCard" data-page="2">
+          <!-- Compact preview -->
+          <div class="cardPreview">
+            <span class="projectName">NAME PROJECT</span>
+          </div>
+
+          <!-- Expanded details -->
+          <div class="cardDetails">
+            <!-- Video -->
+            <div class="videoWrapper">
+              <iframe 
+                src="https://www.youtube.com/embed/LffGsgGHDOY?si=Cr9-wb88iON1a0uh" 
+                frameborder="0" 
+                allowfullscreen>
+              </iframe>
+            </div>
+
+            <!-- Description -->
+            <div class="projectDescription">
+              <h3>Description</h3>
+              <p>
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis posuere 
+                condimentum tellus eget tristique.
+              </p>
+            </div>
+
+            <!-- Process -->
+            <div class="projectProcess">
+              <h3>Process</h3>
+              <p>
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit. Repellendus 
+                deleniti, autem explicabo quisquam numquam accusamus.
+              </p>
+            </div>
+          </div>
+        </article>
+
+        <article class="projectCard" data-page="2">
+          <!-- Compact preview -->
+          <div class="cardPreview">
+            <span class="projectName">NAME PROJECT</span>
+          </div>
+
+          <!-- Expanded details -->
+          <div class="cardDetails">
+            <!-- Video -->
+            <div class="videoWrapper">
+              <iframe 
+                src="https://www.youtube.com/embed/LffGsgGHDOY?si=Cr9-wb88iON1a0uh" 
+                frameborder="0" 
+                allowfullscreen>
+              </iframe>
+            </div>
+
+            <!-- Description -->
+            <div class="projectDescription">
+              <h3>Description</h3>
+              <p>
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis posuere 
+                condimentum tellus eget tristique.
+              </p>
+            </div>
+
+            <!-- Process -->
+            <div class="projectProcess">
+              <h3>Process</h3>
+              <p>
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit. Repellendus 
+                deleniti, autem explicabo quisquam numquam accusamus.
+              </p>
+            </div>
+          </div>
+        </article>
+
+        <article class="projectCard" data-page="2">
+          <!-- Compact preview -->
+          <div class="cardPreview">
+            <span class="projectName">NAME PROJECT</span>
+          </div>
+
+          <!-- Expanded details -->
+          <div class="cardDetails">
+            <!-- Video -->
+            <div class="videoWrapper">
+              <iframe 
+                src="https://www.youtube.com/embed/LffGsgGHDOY?si=Cr9-wb88iON1a0uh" 
+                frameborder="0" 
+                allowfullscreen>
+              </iframe>
+            </div>
+
+            <!-- Description -->
+            <div class="projectDescription">
+              <h3>Description</h3>
+              <p>
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis posuere 
+                condimentum tellus eget tristique.
+              </p>
+            </div>
+
+            <!-- Process -->
+            <div class="projectProcess">
+              <h3>Process</h3>
+              <p>
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit. Repellendus 
+                deleniti, autem explicabo quisquam numquam accusamus.
+              </p>
+            </div>
+          </div>
+        </article>
+
+        <article class="projectCard" data-page="2">
+          <!-- Compact preview -->
+          <div class="cardPreview">
+            <span class="projectName">NAME PROJECT</span>
+          </div>
+
+          <!-- Expanded details -->
+          <div class="cardDetails">
+            <!-- Video -->
+            <div class="videoWrapper">
+              <iframe 
+                src="https://www.youtube.com/embed/LffGsgGHDOY?si=Cr9-wb88iON1a0uh" 
+                frameborder="0" 
+                allowfullscreen>
+              </iframe>
+            </div>
+
+            <!-- Description -->
+            <div class="projectDescription">
+              <h3>Description</h3>
+              <p>
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis posuere 
+                condimentum tellus eget tristique.
+              </p>
+            </div>
+
+            <!-- Process -->
+            <div class="projectProcess">
+              <h3>Process</h3>
+              <p>
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit. Repellendus 
+                deleniti, autem explicabo quisquam numquam accusamus.
+              </p>
+            </div>
+          </div>
+        </article>
+
+        <article class="projectCard" data-page="2">
+          <!-- Compact preview -->
+          <div class="cardPreview">
+            <span class="projectName">NAME PROJECT</span>
+          </div>
+
+          <!-- Expanded details -->
+          <div class="cardDetails">
+            <!-- Video -->
+            <div class="videoWrapper">
+              <iframe 
+                src="https://www.youtube.com/embed/LffGsgGHDOY?si=Cr9-wb88iON1a0uh" 
+                frameborder="0" 
+                allowfullscreen>
+              </iframe>
+            </div>
+
+            <!-- Description -->
+            <div class="projectDescription">
+              <h3>Description</h3>
+              <p>
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis posuere 
+                condimentum tellus eget tristique.
+              </p>
+            </div>
+
+            <!-- Process -->
+            <div class="projectProcess">
+              <h3>Process</h3>
+              <p>
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit. Repellendus 
+                deleniti, autem explicabo quisquam numquam accusamus.
+              </p>
+            </div>
+          </div>
+        </article>
+
+        <article class="projectCard" data-page="2">
+          <!-- Compact preview -->
+          <div class="cardPreview">
+            <span class="projectName">NAME PROJECT</span>
+          </div>
+
+          <!-- Expanded details -->
+          <div class="cardDetails">
+            <!-- Video -->
+            <div class="videoWrapper">
+              <iframe 
+                src="https://www.youtube.com/embed/LffGsgGHDOY?si=Cr9-wb88iON1a0uh" 
+                frameborder="0" 
+                allowfullscreen>
+              </iframe>
+            </div>
+
+            <!-- Description -->
+            <div class="projectDescription">
+              <h3>Description</h3>
+              <p>
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis posuere 
+                condimentum tellus eget tristique.
+              </p>
+            </div>
+
+            <!-- Process -->
+            <div class="projectProcess">
+              <h3>Process</h3>
+              <p>
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit. Repellendus 
+                deleniti, autem explicabo quisquam numquam accusamus.
+              </p>
+            </div>
+          </div>
+        </article>
+
+        <article class="projectCard" data-page="2">
+          <!-- Compact preview -->
+          <div class="cardPreview">
+            <span class="projectName">NAME PROJECT</span>
+          </div>
+
+          <!-- Expanded details -->
+          <div class="cardDetails">
+            <!-- Video -->
+            <div class="videoWrapper">
+              <iframe 
+                src="https://www.youtube.com/embed/LffGsgGHDOY?si=Cr9-wb88iON1a0uh" 
+                frameborder="0" 
+                allowfullscreen>
+              </iframe>
+            </div>
+
+            <!-- Description -->
+            <div class="projectDescription">
+              <h3>Description</h3>
+              <p>
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis posuere 
+                condimentum tellus eget tristique.
+              </p>
+            </div>
+
+            <!-- Process -->
+            <div class="projectProcess">
+              <h3>Process</h3>
+              <p>
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit. Repellendus 
+                deleniti, autem explicabo quisquam numquam accusamus.
+              </p>
+            </div>
+          </div>
+        </article>
+       
     </div>
   </div>
 </div>
