@@ -1,14 +1,22 @@
 // Subpage functions
 //open subpage by number
-function openSubpage(pageNumber) {
-  document.getElementById("subpage-" + pageNumber).style.display = "flex";
-}
-//close all subpages
-function closeSubpage() {
-  const subpages = document.querySelectorAll(".subpage");
-  subpages.forEach((page) => (page.style.display = "none"));
-}
+// Expand/collapse cards inside gallery
+document.querySelectorAll(".projectCard .cardPreview").forEach(preview => {
+  preview.addEventListener("click", () => {
+    const card = preview.closest(".projectCard");
+    const isExpanded = card.classList.contains("expanded");
 
+    // Collapse any other expanded card
+    document.querySelectorAll(".projectCard.expanded")
+      .forEach(c => c.classList.remove("expanded"));
+
+    // Expand clicked card (if it wasn’t already open)
+    if (!isExpanded) {
+      card.classList.add("expanded");
+      card.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  });
+});
 /// ---------------------------------------------------------
 // Menu functions
 function openMenu() {

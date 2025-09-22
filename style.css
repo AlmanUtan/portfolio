@@ -107,11 +107,7 @@ body {
   /* Dark gray blurred background */
   backdrop-filter: blur(16px) saturate(1.05);
   -webkit-backdrop-filter: blur(16px) saturate(1.05);
-  background: linear-gradient(
-    180deg,
-    rgba(24, 26, 31, 0.92) 0%,
-    rgba(14, 16, 20, 0.94) 100%
-  );
+  background: #171717c4;
   border: 1px solid rgba(255, 255, 255, 0.06);
   box-shadow: 0 30px 80px rgba(0, 0, 0, 0.45), 0 4px 16px rgba(0, 0, 0, 0.25);
 
@@ -119,22 +115,7 @@ body {
   pointer-events: none; /* enabled when almost open */
 }
 
-.galleryHeader {
-  position: sticky;
-  top: 0;
-  z-index: 1;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 16px;
-  background: linear-gradient(
-    180deg,
-    rgba(18, 20, 24, 0.9),
-    rgba(18, 20, 24, 0.4)
-  );
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(6px);
-}
+
 .galleryTitle {
   /* font-family: "logic-monospace", mono; */
   font-family: "chivo-mono", sans-serif;
@@ -166,65 +147,124 @@ body {
   padding: 16px;
 }
 
-/* Organic blob grid with size variants */
-.blobGrid {
+/* === Clean gallery grid === */
+.galleryGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  height: 100%;
+}
+
+/* Header row */
+.galleryHeaderRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 8px;
+}
+.galleryTitle {
+  font-family: "chivo-mono", sans-serif;
+  font-size: 14px;
+  letter-spacing: 0.02em;
+  color: rgba(250, 250, 250, 0.9);
+  text-transform: uppercase;
+}
+.galleryClose {
+  font-family: "chivo-mono", sans-serif;
+  font-size: 13px;
+  color: rgba(250, 250, 250, 0.9);
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-decoration: underline;
+}
+.galleryClose:hover {
+  opacity: 0.8;
+}
+
+/* Main content grid: 2 columns */
+.galleryContent {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 18px;
-  grid-auto-rows: 120px; /* enables span sizes */
+  grid-template-columns: 3fr 2fr; /* left bigger, right stacked */
+  grid-gap: 16px;
+  flex: 1;
 }
-.blobCard {
-  position: relative;
-  padding: 16px;
-  color: #e2e8f0;
-  background: radial-gradient(
-    120% 120% at 0% 0%,
-    rgba(46, 52, 64, 0.35) 0%,
-    rgba(39, 44, 54, 0.5) 100%
-  );
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+
+/* Right side column stacked */
+.rightColumn {
+  display: grid;
+  grid-template-rows: repeat(2, 1fr);
+  gap: 16px;
+}
+
+/* Project Cards */
+.projectCard {
+  background: #2f2f2f;
+  border-radius: 8px;
   overflow: hidden;
-  transition: transform 0.15s ease, box-shadow 0.2s ease;
-  min-height: unset; /* size from grid */
-}
-.blobCard:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.28);
-}
-.blobCard:nth-child(3n + 1) {
-  border-radius: 26px 42px 30px 18px;
-}
-.blobCard:nth-child(3n + 2) {
-  border-radius: 18px 28px 44px 22px;
-}
-.blobCard:nth-child(3n) {
-  border-radius: 36px 20px 20px 40px;
+  transition: all 0.4s ease;
 }
 
-/* Size variants */
-.span-2x {
-  grid-column: span 2;
-}
-.span-2y {
-  grid-row: span 2;
-}
-.span-2x2y {
-  grid-column: span 2;
-  grid-row: span 2;
+/* Preview section always visible */
+.cardPreview {
+  padding: 16px;
+  font-family: "chivo-mono", sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  color: #fff;
+  cursor: pointer;
 }
 
-.blobMeta {
-  font: 600 14px/1.3 system-ui, -apple-system, Segoe UI, Roboto, Arial;
-  margin-bottom: 6px;
-  color: #f3f4f6;
-}
-.blobDesc {
-  font: 400 13px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Arial;
-  color: #cbd5e1;
+/* Hidden details by default */
+.cardDetails {
+  display: none;
+  color: #ccc;
 }
 
+/* Expanded card */
+.projectCard.expanded {
+  grid-column: 1 / -1; /* span full gallery width */
+
+  background: #1a1a1a; /* darker background when expanded */
+}
+.projectCard.expanded .cardDetails {
+  display: block;
+}
+
+/* Video section (16:9 enforce) */
+.videoWrapper {
+  position: relative;
+  width: 100%;
+  padding-top: 56.25%; /* 16:9 Aspect Ratio */
+  margin-bottom: 20px;
+}
+.videoWrapper iframe {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 6px;
+}
+
+/* Sections */
+.projectDescription, .projectProcess {
+  margin-bottom: 24px;
+}
+.projectDescription h3,
+.projectProcess h3 {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  color: #f1f1f1;
+}
+.projectDescription p,
+.projectProcess p {
+  font-size: 13px;
+  line-height: 1.5;
+  color: #d0d0d0;
+}
 /* ------------------- Menu ------------------------------------------------ */
 .navigation {
   position: fixed;
@@ -366,94 +406,3 @@ nav {
 }
 
 
-/* === Clean gallery grid === */
-.galleryGrid {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  height: 100%;
-}
-
-/* Header row */
-.galleryHeaderRow {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 4px 8px;
-}
-.galleryTitle {
-  font-family: "chivo-mono", sans-serif;
-  font-size: 14px;
-  letter-spacing: 0.02em;
-  color: rgba(250, 250, 250, 0.9);
-  text-transform: uppercase;
-}
-.galleryClose {
-  font-family: "chivo-mono", sans-serif;
-  font-size: 13px;
-  color: rgba(250, 250, 250, 0.9);
-  background: none;
-  border: none;
-  cursor: pointer;
-  text-decoration: underline;
-}
-.galleryClose:hover {
-  opacity: 0.8;
-}
-
-/* Main content grid: 2 columns */
-.galleryContent {
-  display: grid;
-  grid-template-columns: 2fr 2fr; /* left bigger, right stacked */
-  grid-gap: 16px;
-  flex: 1;
-}
-
-/* Right side column stacked */
-.rightColumn {
-  display: grid;
-  grid-template-rows: repeat(2, 1fr);
-  gap: 16px;
-}
-
-/* Cards */
-.projectCard {
-  background: #000000;
-  border-radius: 10px;
-  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.05);
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  cursor: pointer;
-  transition: transform 0.15s ease, box-shadow 0.2s ease;
-}
-.projectCard:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
-}
-
-/* Large card left */
-.projectCard.large {
-  height: 100%;
-  padding: 16px 20px;
-}
-
-/* Small cards right */
-.projectCard.small {
-  padding: 8px 12px;
-}
-
-/* Footer inside big card */
-.cardFooter {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  color: #fff;
-  font-family: "chivo-mono", sans-serif;
-  font-size: 14px;
-  font-weight: 600;
-}
-.openIcon {
-  font-size: 14px;
-  opacity: 0.8;
-}
