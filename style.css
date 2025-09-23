@@ -121,12 +121,14 @@ body {
   /* Dark gray blurred background */
   backdrop-filter: blur(16px) saturate(1.05);
   -webkit-backdrop-filter: blur(16px) saturate(1.05);
-  background: linear-gradient(
+  background: #404040;
+
+  /*linear-gradient(
     180deg,
     rgba(24, 26, 31, 0.92) 0%,
     rgba(14, 16, 20, 0.94) 100%
-  );
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  );*/
+  /*border: 1px solid rgba(255, 255, 255, 0.06);*/
   box-shadow: 0 30px 80px rgba(0, 0, 0, 0.45), 0 4px 16px rgba(0, 0, 0, 0.25);
 
   opacity: 0; /* JS fades up progressively */
@@ -140,13 +142,16 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 16px;
+  padding: 20px 20px;
+  background: #404040;
+  /*
   background: linear-gradient(
     180deg,
     rgba(18, 20, 24, 0.9),
     rgba(18, 20, 24, 0.4)
   );
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  */
   backdrop-filter: blur(6px);
 }
 .galleryTitle {
@@ -174,40 +179,63 @@ body {
 
 .galleryScroll {
   position: relative;
-  height: calc(100% - 48px);
+  /*height: calc(100% - 48px);*/
+  height: calc(100vh - 147px);
   overflow-y: auto;
   overscroll-behavior: contain;
-  padding: 16px;
+  padding: 20px;
+  padding-top: 0px;
 }
 
 /* Organic blob grid with size variants */
 .blobGrid {
+  height: 100%;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 18px;
-  grid-auto-rows: 120px; /* enables span sizes */
+  /* grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));*/
+  /* grid-auto-rows: 120px; */ /* enables span sizes */
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-template-rows: 1fr 1fr 1fr 1fr;
+  gap: 20px;
 }
 .blobCard {
   position: relative;
-  padding: 16px;
-  color: #e2e8f0;
-  background: radial-gradient(
+  padding: 16px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+
+  /*background: radial-gradient(
     120% 120% at 0% 0%,
     rgba(46, 52, 64, 0.35) 0%,
     rgba(39, 44, 54, 0.5) 100%
   );
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18),
     inset 0 1px 0 rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.06);*/
   overflow: hidden;
   transition: transform 0.15s ease, box-shadow 0.2s ease;
   min-height: unset; /* size from grid */
+  border-radius: 10px;
+  cursor: pointer;
 }
-.blobCard:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.28);
+.blobCard .blobBackgroundImage {
+  background-color: #e5e7eb;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -1;
+  transition: transform 0.3s ease;
 }
-.blobCard:nth-child(3n + 1) {
+.blobCard:hover .blobBackgroundImage {
+  transform: scale(1.03);
+}
+.blobCard:hover .blobDesc {
+  opacity: 1;
+}
+/*.blobCard:nth-child(3n + 1) {
   border-radius: 26px 42px 30px 18px;
 }
 .blobCard:nth-child(3n + 2) {
@@ -215,9 +243,10 @@ body {
 }
 .blobCard:nth-child(3n) {
   border-radius: 36px 20px 20px 40px;
-}
+}*/
 
 /* Size variants */
+
 .span-2x {
   grid-column: span 2;
 }
@@ -230,13 +259,17 @@ body {
 }
 
 .blobMeta {
-  font: 600 14px/1.3 system-ui, -apple-system, Segoe UI, Roboto, Arial;
-  margin-bottom: 6px;
+  font-family: "chivo-mono", sans-serif;
+  font-size: 20px;
+  font-weight: 500;
+  text-transform: uppercase;
   color: #f3f4f6;
 }
 .blobDesc {
-  font: 400 13px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Arial;
-  color: #cbd5e1;
+  opacity: 0;
+  max-height: 13px;
+  padding-bottom: 8px;
+  transition: all 0.3s ease;
 }
 
 /* ------------------- Menu ------------------------------------------------ */
