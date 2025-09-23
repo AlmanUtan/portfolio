@@ -186,7 +186,7 @@ body {
 .organicGrid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  grid-auto-flow: dense;      /* pack tightly */
+  grid-auto-flow: dense;    /* pack tightly */
   gap: 18px;
   align-items: start;
 }
@@ -288,7 +288,7 @@ body {
   color: #d0d0d0;
 }
 
-/* ------------------- Menu ------------------------------------------------ */
+/* ---- Menu ---- */
 .navigation {
   position: fixed;
   right: -150vw;
@@ -428,4 +428,18 @@ nav {
   transform: rotate(-45deg) translate(6px, -5px);
 }
 
+/* Masonry override for organicGrid */
+.organicGrid.masonry-on {
+  display: block;            /* override grid */
+  position: relative;
+  margin: 0 auto;
+  transition: height 0.2s ease;
+  will-change: height;
+}
 
+/* Absolutely position cards when masonry is enabled */
+.organicGrid.masonry-on .projectCard {
+  position: absolute;
+  left: 0;
+  top: 0;
+}
