@@ -55,7 +55,6 @@
     <div id="start-overlay"><h1>Welcome</h1></div>
 
     <!-- Subpages -->
-    <!-- TODO: Fix overlay position on max -->
     <div id="subpage-1" class="subpage">
       <button class="close-btn" onclick="closeSubpage()">Close</button>
       <div>Page 1</div>
@@ -90,7 +89,7 @@
     </div>
 
     <!-- GALLERY OVERLAY -->
-    <!-- TODO: fix galery overlay and transparency on the screen bottom -->
+    <!-- TODO: fix galery on the screen bottom -->
     <section id="galleryOverlay" aria-hidden="true">
       <header class="galleryHeader">
         <div class="galleryTitle">Projects Gallery</div>
@@ -547,13 +546,23 @@
         }
 
         // to stop/start rotation of the projects
-        // TODO: change to keydown (spacebar) event listener
+        // TODO: remove the button code to stop the rotation and just use the space bar
         setupUI() {
           this.toggleBtn.addEventListener("click", () => {
             this.rotationEnabled = !this.rotationEnabled;
             this.toggleBtn.textContent = this.rotationEnabled
               ? "Pause Rotation"
               : "Resume Rotation";
+          });
+
+          window.addEventListener("keydown", (e) => {
+            if (e.code === "Space" && !e.repeat) {
+              e.preventDefault();
+              this.rotationEnabled = !this.rotationEnabled;
+              this.toggleBtn.textContent = this.rotationEnabled
+                ? "Pause Rotation"
+                : "Resume Rotation";
+            }
           });
         }
 
