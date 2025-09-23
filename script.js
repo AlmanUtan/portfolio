@@ -10,3 +10,16 @@ function closeSubpage() {
 }
 
 /// ---------------------------------------------------------
+// Menu functions
+function openMenu() {
+  document.querySelector(".hamburger").classList.toggle("is-open");
+  document.querySelector(".navigation").classList.toggle("is-active");
+}
+
+//Menu a hover rotation picking
+document.querySelectorAll(".navigation ul li a").forEach((link) => {
+  link.addEventListener("mouseenter", () => {
+    const randomAngle = (Math.random() * 10 - 5).toFixed(2); // -5 to +5
+    link.style.setProperty("--rand-rotate", `${randomAngle}deg`);
+  });
+});
