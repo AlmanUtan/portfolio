@@ -52,7 +52,12 @@
       //press space to stop and resume the rotation
     </p>
 
-    <div id="start-overlay"><h1>Welcome</h1></div>
+    <div id="start-overlay">
+      <video id="introVideo" autoplay muted playsinline preload="auto">
+        <source src="public/vid/platz.mp4" type="video/mp4" />
+      </video>
+      <button id="introPlayBtn" aria-label="Play intro" hidden>Play</button>
+    </div>
   
 
     <!-- GALLERY OVERLAY -->
@@ -757,12 +762,47 @@
           this.overlay = document.getElementById("start-overlay");
           this.overlayActive = true;
 
+          // Intro video setup
+          this.introPlaying = false;
+          const introVideo = document.getElementById("introVideo");
+          const introPlayBtn = document.getElementById("introPlayBtn");
+
+          if (introVideo) {
+            this.introPlaying = true;
+
+            // Best-effort autoplay
+            introVideo.muted = true;        // required for autoplay on most browsers
+            introVideo.playsInline = true;  // iOS/Safari hint
+            const tryAutoplay = () => {
+              introVideo.play().catch(() => {
+                // Autoplay blocked -> show manual play button
+                if (introPlayBtn) introPlayBtn.hidden = false;
+              });
+            };
+            if (introVideo.readyState >= 2) {
+              tryAutoplay();
+            } else {
+              introVideo.addEventListener("canplay", tryAutoplay, { once: true });
+            }
+
+            // When video ends -> hide overlay and "scroll-zoom" out a bit
+            introVideo.addEventListener("ended", () => this.onIntroVideoEnd());
+          }
+
+          if (introPlayBtn) {
+            introPlayBtn.addEventListener("click", () => {
+              introPlayBtn.hidden = true;
+              const v = document.getElementById("introVideo");
+              if (v) v.play().catch(() => {});
+            });
+          }
+
           this.galleryEl = document.getElementById("galleryOverlay");
           this.galleryScroller = document.getElementById("galleryScroll");
           this.closeGalleryBtn = document.getElementById("closeGalleryBtn");
-          this.closeGalleryBtn.addEventListener("click", () =>
-            this.closeGallery()
-          );
+          if (this.closeGalleryBtn) {
+            this.closeGalleryBtn.addEventListener("click", () => this.closeGallery());
+          }
 
           // UI and input
           this.setupUI();
@@ -799,13 +839,34 @@
           this.galleryProgress = 0; // 0..1 rendered
           this.galleryProgressTarget = 0; // 0..1 target
           this.galleryPull = 0; // accumulated extra scroll past zoom end
-          this.galleryDeadSpace = 220; // dead space before lifting
-          this.galleryLift = 520; // distance to fully open after dead space
 
-          this.closeGalleryBtn.addEventListener("click", () =>
-            this.closeGallery()
-          );
+          // Tweak these if you want the gallery to open quicker or slower
+          this.galleryDeadSpace = 80;  // a bit of "dead space" before lift
+          this.galleryLift = 280;      // distance to fully open after dead space
+
+          if (this.closeGalleryBtn) {
+            this.closeGalleryBtn.addEventListener("click", () => this.closeGallery());
+          }
         }
+
+          onIntroVideoEnd() {
+            this.introPlaying = false;
+
+            // Hide overlay visually and stop it from capturing input
+            if (this.overlay) {
+              this.overlay.classList.add("hidden");
+              this.overlayActive = false;
+            }
+
+            // Use existing scroll-to-zoom pipeline:
+            // set targetScroll to a bit into the zoom range (e.g., ~28%)
+            const fraction = 0.28; // tweak to taste
+            this.targetScroll = Math.min(
+              this.maxOverlayScroll + this.maxZoomScroll,
+              this.maxOverlayScroll + this.maxZoomScroll * fraction
+            );
+          }
+          
 
         // to stop/start rotation of the projects
         // TODO: change to keydown (spacebar) event listener
@@ -1111,18 +1172,23 @@
             )
           );
 
-          // Overlay fade
+          // Overlay handling: while intro video is playing, don't auto-fade by scroll
           if (this.overlay) {
-            const overlayProgress = Math.min(
-              1,
-              this.scrollAccumulator / this.maxOverlayScroll
-            );
-            if (overlayProgress >= 1 && this.overlayActive) {
-              this.overlay.classList.add("hidden");
-              this.overlayActive = false;
-            } else if (overlayProgress < 1 && !this.overlayActive) {
+            if (this.introPlaying) {
               this.overlay.classList.remove("hidden");
               this.overlayActive = true;
+            } else {
+              const overlayProgress = Math.min(
+                1,
+                this.scrollAccumulator / this.maxOverlayScroll
+              );
+              if (overlayProgress >= 1 && this.overlayActive) {
+                this.overlay.classList.add("hidden");
+                this.overlayActive = false;
+              } else if (overlayProgress < 1 && !this.overlayActive) {
+                this.overlay.classList.remove("hidden");
+                this.overlayActive = true;
+              }
             }
           }
 
@@ -1136,16 +1202,13 @@
 
           // Camera position
           const minZ = this.getMinCameraZ();
-          theMaxZ: {
-          }
           const maxZ = this.getMaxCameraZ();
           let z = minZ + (maxZ - minZ) * zoomProgress;
 
           // Camera zoom-out while rotating (slow and smooth)
           if (this.targetZoom !== null) {
             if (this.currentZoom === null) this.currentZoom = z;
-            this.currentZoom +=
-              (this.targetZoom - this.currentZoom) * 0.08 * dt;
+            this.currentZoom += (this.targetZoom - this.currentZoom) * 0.08 * dt;
             z = this.currentZoom;
 
             if (Math.abs(this.currentZoom - this.targetZoom) < 0.01) {
@@ -1193,10 +1256,8 @@
               const targetY = Math.atan2(target.x, target.z);
               const targetX = Math.asin(-target.y);
 
-              this.asterisk.rotation.x +=
-                (targetX - this.asterisk.rotation.x) * 0.18;
-              this.asterisk.rotation.y +=
-                (targetY - this.asterisk.rotation.y) * 0.18;
+              this.asterisk.rotation.x += (targetX - this.asterisk.rotation.x) * 0.18;
+              this.asterisk.rotation.y += (targetY - this.asterisk.rotation.y) * 0.18;
 
               if (this.shouldOrientAsterisk) {
                 if (
@@ -1250,7 +1311,7 @@
       }
 
       const app = new App();
-      window.App = app; // expose so other scripts can call openGallery/closeGallery
+      window.App = app;
     </script>
   </body>
 </html>
