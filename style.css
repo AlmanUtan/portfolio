@@ -27,7 +27,6 @@ body {
   z-index: 1;
 }
 
-
 /* Subpages (opened by clicking orbiting tiles) */
 .subpage {
   position: fixed;
@@ -61,37 +60,27 @@ body {
   background: #555;
 }
 
-/* Start overlay (black welcome) */
+/* Start overlay (video) */
 #start-overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: #0A0A0A
-  ;
+  background: #0A0A0A;
   z-index: 2000;
   opacity: 1;
-  transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: opacity 1.6s cubic-bezier(0.4, 0, 0.2, 1);
   pointer-events: auto;
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
+  cursor: default;
 }
 #start-overlay.hidden {
   opacity: 0;
   pointer-events: none;
 }
-#start-overlay h1 {
-  color: #fff;
-  font-size: 2.5rem;
-  font-family: monospace;
-  letter-spacing: 0.1em;
-  text-align: center;
-  margin: 0;
-}
-
 #start-overlay video {
   width: 100%;
   height: 100%;
@@ -113,11 +102,29 @@ body {
   cursor: pointer;
 }
 
+/* Small mute/unmute toggle in top-right */
+#introMuteToggle {
+  position: absolute;
+  right: 16px;
+  top: 16px;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.9);
+  color: #111;
+  display: grid;
+  place-items: center;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  user-select: none;
+}
+
 /* Gallery overlay - progressive pull-up */
 #galleryOverlay {
   position: fixed;
   left: 50%;
-  bottom: 0; /* not 32px, so it sits fully off-screen */
+  bottom: 0;
   transform: translateX(-50%) translateY(100%);
   width: min(1400px, calc(100vw - 64px));
   height: calc(100vh - 64px);
@@ -125,20 +132,17 @@ body {
   overflow: hidden;
   z-index: 999;
 
-  /* Dark gray blurred background */
   backdrop-filter: blur(16px) saturate(1.05);
   -webkit-backdrop-filter: blur(16px) saturate(1.05);
   background: #171717c4;
   border: 1px solid rgba(255, 255, 255, 0.06);
   box-shadow: 0 30px 80px rgba(0, 0, 0, 0.45), 0 4px 16px rgba(0, 0, 0, 0.25);
 
-  opacity: 0;   /* completely invisible at rest */
+  opacity: 0;
   pointer-events: none;
 }
 
-
 .galleryTitle {
-  /* font-family: "logic-monospace", mono; */
   font-family: "chivo-mono", sans-serif;
   font-weight: 400;
   font-size: 16px;
@@ -207,38 +211,31 @@ body {
 .organicGrid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  grid-auto-flow: dense;    /* pack tightly */
+  grid-auto-flow: dense;
   gap: 18px;
   align-items: start;
 }
 
-/* Let some cards take two columns on wider screens */
 .projectCard.span-2 {
   grid-column: span 2;
 }
 
-/* Collapsed cards get variable height via aspect-ratio on the preview */
 .projectCard:not(.expanded) .cardPreview {
   width: 100%;
-  aspect-ratio: var(--card-ar, 1 / 1); /* default 1:1 if none assigned */
+  aspect-ratio: var(--card-ar, 1 / 1);
   border-radius: 8px;
-  /* keep your existing background and inner styling */
 }
 
-/* When expanded, card spans full width and preview stops using aspect-ratio */
 .projectCard.expanded {
-  grid-column: 1 / -1; /* full width */
+  grid-column: 1 / -1;
 }
 .projectCard.expanded .cardPreview {
   aspect-ratio: auto;
 }
 
-/* Optional: don’t allow span-2 on narrow screens (keeps things tidy) */
 @media (max-width: 700px) {
   .projectCard.span-2 { grid-column: span 1; }
 }
-
-
 
 /* Project Cards */
 .projectCard {
@@ -266,9 +263,7 @@ body {
 
 /* Expanded card */
 .projectCard.expanded {
-  grid-column: 1 / -1; /* span full gallery width */
-
-  background: #1a1a1a; /* darker background when expanded */
+  background: #1a1a1a;
 }
 .projectCard.expanded .cardDetails {
   display: block;
@@ -278,7 +273,7 @@ body {
 .videoWrapper {
   position: relative;
   width: 100%;
-  padding-top: 56.25%; /* 16:9 Aspect Ratio */
+  padding-top: 56.25%;
   margin-bottom: 20px;
 }
 .videoWrapper iframe {
@@ -370,6 +365,7 @@ nav {
 .navigation ul li a:hover::before {
   opacity: 1;
 }
+
 /* Social media links at the bottom */
 .navigation .socials {
   position: absolute;
@@ -393,6 +389,7 @@ nav {
   text-decoration-thickness: 1.5px;
   text-underline-offset: 2px;
 }
+
 /* Asterisk image */
 .navigation .asterisk-image {
   display: block;
@@ -407,6 +404,7 @@ nav {
   height: 100%;
   object-fit: contain;
 }
+
 /* Hamburger menu */
 .hamburger,
 .bar {
@@ -422,7 +420,6 @@ nav {
   border: 0;
   background: 0 0;
 }
-
 .bar {
   top: 3px;
   background-color: #000;
@@ -430,15 +427,9 @@ nav {
   height: 4px;
   transition: all 0.3s ease-in;
 }
-#bar2 {
-  top: 11px;
-}
-#bar3 {
-  top: 19px;
-}
-.navigation.is-active {
-  right: 0;
-}
+#bar2 { top: 11px; }
+#bar3 { top: 19px; }
+.navigation.is-active { right: 0; }
 .hamburger.is-open #bar1 {
   transform: rotate(45deg) translate(6px, 5px);
 }
@@ -451,7 +442,7 @@ nav {
 
 /* Masonry override for organicGrid */
 .organicGrid.masonry-on {
-  display: block;            /* override grid */
+  display: block;
   position: relative;
   margin: 0 auto;
   transition: height 0.2s ease;
