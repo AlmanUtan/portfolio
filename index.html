@@ -664,6 +664,8 @@
           this.targetScroll = 0;
           this.scrollVelocity = 0;
           this.lastFrameTime = performance.now();
+          this.overlayShowThreshold = 0.94; // show when below 94%
+          this.overlayHideThreshold = 0.98; // hide when above 98%
 
           // Objects
           this.asterisk = AsteriskCreator.createAsterisk(1.5, 0x0000);
@@ -790,40 +792,63 @@
         }
 
         onOverlayShown() {
-          // Decide resume vs restart
-          const v = this.introVideo;
-          if (!v) return;
-
-          // If we just showed it (coming from below), choose playhead
-          const now = Date.now();
-          const tooLong =
-            this.lastOverlayHideAt && now - this.lastOverlayHideAt > 10000;
-
-          if (tooLong) {
-            v.currentTime = 0;
-          } else {
-            v.currentTime = this.lastVideoTime || 0;
+          // Do not show the play button when re-entering
+          if (this.introPlayBtn) {
+            this.introPlayBtn.hidden = true;
+            this.introPlayBtn.style.display = "none";
           }
 
-          // Respect prior mute choice (or browser policy)
-          if (this.userApprovedAudio) {
-            v.muted = false;
-          } else {
-            v.muted = true;
-          }
-          this.updateMuteButtonIcon();
+          if (!this.introVideo) return;
 
-          // Try to play; if blocked, leave button visible
-          v.play().catch(() => {
-            if (this.introPlayBtn) this.introPlayBtn.hidden = false;
-          });
+          // Auto-resume if user returned within 10s, otherwise restart
+          const now = performance.now();
+          const recentlyHidden =
+            this.lastOverlayHiddenAt && now - this.lastOverlayHiddenAt <= 10000;
 
-          this.introPlaying = true;
+          // Autoplay reliably by starting muted (we’ll restore prior mute state after play starts)
+          const prevMuted = this.introVideo.muted;
+          this.introVideo.muted = true;
+
+          const resumeOrRestart = () => {
+            try {
+              if (
+                recentlyHidden &&
+                !this.introVideo.ended &&
+                this.introVideo.currentTime > 0
+              ) {
+                // resume
+                this.introVideo
+                  .play()
+                  ?.then(() => {
+                    // restore previous mute state
+                    this.introVideo.muted = prevMuted;
+                  })
+                  .catch(() => {
+                    /* ignore */
+                  });
+              } else {
+                // restart
+                this.introVideo.currentTime = 0;
+                this.introVideo
+                  .play()
+                  ?.then(() => {
+                    this.introVideo.muted = prevMuted;
+                  })
+                  .catch(() => {
+                    /* ignore */
+                  });
+              }
+            } catch (e) {
+              /* ignore */
+            }
+          };
+
+          resumeOrRestart();
         }
 
         onOverlayHidden() {
           // Track when we hid it, store last video time
-          this.lastOverlayHideAt = Date.now();
+          this.lastOverlayHiddenAt = performance.now();
           const v = this.introVideo;
           if (!v) return;
           this.lastVideoTime = v.currentTime || 0;
@@ -920,10 +945,16 @@
             (e) => {
               const dy = e.deltaY;
 
-              // If intro overlay is active, allow scroll-to-skip
               if (this.overlayActive && this.introPlaying) {
                 e.preventDefault();
-                this.skipIntro("scroll");
+                const dy = e.deltaY;
+                if (dy > 0) {
+                  // scrolling down -> skip the intro (fade out)
+                  this.skipIntro("scroll");
+                } else {
+                  // scrolling up -> stay on intro (move deeper into overlay region)
+                  this.targetScroll = Math.max(0, this.targetScroll - 8);
+                }
                 return;
               }
 
@@ -1220,23 +1251,69 @@
             )
           );
 
-          // Overlay show/hide based on scroll position (independent of introPlaying)
           const overlayProgress = Math.min(
             1,
             this.scrollAccumulator / this.maxOverlayScroll
           );
+          // Normalize progress up to the hide threshold so opacity hits 0 exactly when we hide
+          const p = Math.min(
+            1,
+            this.scrollAccumulator /
+              (this.maxOverlayScroll * this.overlayHideThreshold)
+          );
 
-          const shouldShow = overlayProgress < 1;
+          // While overlay is active, tie opacity to scroll directly
+          if (this.overlayActive) {
+            if (this.overlay) {
+              // kill transitions so there is no “trailing” fade
+              this.overlay.style.transition = "opacity 0s linear";
+              this.overlay.style.opacity = String(1 - p);
+            }
+            if (this.introVideo) {
+              this.introVideo.style.transition = "opacity 0s linear";
+              this.introVideo.style.opacity = String(1 - p);
+            }
+          }
+
           if (this.overlay) {
-            if (shouldShow && !this.overlayActive) {
-              // Show and resume/restart as per 10s rule
+            // Show only when we are clearly back in the overlay zone
+            if (
+              !this.overlayActive &&
+              overlayProgress < this.overlayShowThreshold
+            ) {
               this.overlay.classList.remove("hidden");
               this.overlayActive = true;
+              // existing show branch
+              this.overlay.classList.remove("hidden");
+              this.overlayActive = true;
+              this.onOverlayShown?.();
+
+              // ensure fully visible and scroll-synced
+              if (this.overlay) {
+                this.overlay.style.transition = "opacity 0s linear";
+                this.overlay.style.opacity = "1";
+              }
+              if (this.introVideo) {
+                this.introVideo.style.transition = "opacity 0s linear";
+                this.introVideo.style.opacity = "1";
+              }
               this.onOverlayShown();
-            } else if (!shouldShow && this.overlayActive) {
-              // Hide overlay
+            }
+            // Hide only when we are clearly out of the overlay zone
+            else if (
+              this.overlayActive &&
+              overlayProgress > this.overlayHideThreshold
+            ) {
               this.overlay.classList.add("hidden");
               this.overlayActive = false;
+              // existing hide branch
+              this.overlay.classList.add("hidden");
+              this.overlayActive = false;
+              this.onOverlayHidden?.();
+
+              // ensure fully hidden now
+              if (this.overlay) this.overlay.style.opacity = "0";
+              if (this.introVideo) this.introVideo.style.opacity = "0";
               this.onOverlayHidden();
             }
           }
