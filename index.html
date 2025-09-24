@@ -1249,7 +1249,8 @@
         }
       }
 
-      new App();
+      const app = new App();
+      window.App = app; // expose so other scripts can call openGallery/closeGallery
     </script>
   </body>
 </html>
