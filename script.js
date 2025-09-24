@@ -17,6 +17,13 @@
     burger.classList.toggle("is-open", isActive);
   };
 
+  //Menu a hover rotation picking
+  document.querySelectorAll(".navigation ul li a").forEach((link) => {
+    link.addEventListener("mouseenter", () => {
+      const randomAngle = (Math.random() * 10 - 5).toFixed(2); // -5 to +5
+      link.style.setProperty("--rand-rotate", `${randomAngle}deg`);
+    });
+  });
   // -----------------------------
   // Masonry + Expand for Gallery
   // -----------------------------
@@ -98,7 +105,8 @@
   // Default ratios cycling
   const defaultRatios = ["1:1", "3:2", "16:9"];
   cards.forEach((c, i) => {
-    if (!c.dataset.ratio) c.dataset.ratio = defaultRatios[i % defaultRatios.length];
+    if (!c.dataset.ratio)
+      c.dataset.ratio = defaultRatios[i % defaultRatios.length];
   });
 
   // Stable per-card RNG for span decisions
@@ -154,7 +162,9 @@
       const isExpanded = card.classList.contains("expanded");
 
       // Span decision
-      let span = isExpanded ? cols : Math.min(decideSpan(card, cols, perCardRand[i]), cols);
+      let span = isExpanded
+        ? cols
+        : Math.min(decideSpan(card, cols, perCardRand[i]), cols);
       const ratio = parseRatio(card.dataset.ratio || "1:1");
 
       const width = span * colWidth + (span - 1) * GAP;
@@ -167,10 +177,14 @@
       }
 
       // Greedy placement across columns
-      let bestCol = 0, bestY = Infinity;
+      let bestCol = 0,
+        bestY = Infinity;
       for (let c = 0; c <= cols - span; c++) {
         const y = Math.max(...heights.slice(c, c + span));
-        if (y < bestY) { bestY = y; bestCol = c; }
+        if (y < bestY) {
+          bestY = y;
+          bestCol = c;
+        }
       }
 
       const x = bestCol * (colWidth + GAP);
@@ -219,7 +233,10 @@
           if (willExpand) {
             const pos = posCache.get(card);
             if (scroller && pos) {
-              scroller.scrollTo({ top: Math.max(0, pos.y - 12), behavior: "smooth" });
+              scroller.scrollTo({
+                top: Math.max(0, pos.y - 12),
+                behavior: "smooth",
+              });
             }
           }
         });
@@ -249,7 +266,9 @@
       setTimeout(layout, 140);
     }
 
-    const target = cards.find((c) => String(c.dataset.page) === String(pageNumber));
+    const target = cards.find(
+      (c) => String(c.dataset.page) === String(pageNumber)
+    );
     if (!target) return;
 
     // Expand target and collapse others
