@@ -860,7 +860,7 @@
 
             // Use existing scroll-to-zoom pipeline:
             // set targetScroll to a bit into the zoom range (e.g., ~28%)
-            const fraction = 0.28; // tweak to taste
+            const fraction = 0.28; // tweak this to taste
             this.targetScroll = Math.min(
               this.maxOverlayScroll + this.maxZoomScroll,
               this.maxOverlayScroll + this.maxZoomScroll * fraction
