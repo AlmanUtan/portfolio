@@ -17,6 +17,13 @@
     burger.classList.toggle("is-open", isActive);
   };
 
+  //Menu a hover rotation picking
+  document.querySelectorAll(".navigation ul li a").forEach((link) => {
+    link.addEventListener("mouseenter", () => {
+      const randomAngle = (Math.random() * 10 - 5).toFixed(2); // -5 to +5
+      link.style.setProperty("--rand-rotate", `${randomAngle}deg`);
+    });
+  });
   // -----------------------------
   // Masonry + Expand for Gallery
   // -----------------------------
@@ -114,7 +121,8 @@
   // Slight variety across the list: 1:1, 3:2, 16:9 repeated
   const defaultRatios = ["1:1", "3:2", "16:9"];
   cards.forEach((c, i) => {
-    if (!c.dataset.ratio) c.dataset.ratio = defaultRatios[i % defaultRatios.length];
+    if (!c.dataset.ratio)
+      c.dataset.ratio = defaultRatios[i % defaultRatios.length];
   });
 
   // Stable per-card RNG for span decisions
@@ -168,9 +176,9 @@ function measureExpandedHeight(card, width) {
   layoutOrder.forEach((card, i) => {
     const isExpanded = card.classList.contains("expanded");
 
-    // Span decision
-    let span = isExpanded ? cols : Math.min(decideSpan(card, cols, perCardRand[i]), cols);
-    const ratio = parseRatio(card.dataset.ratio || "1:1");
+      // Span decision
+      let span = isExpanded ? cols : Math.min(decideSpan(card, cols, perCardRand[i]), cols);
+      const ratio = parseRatio(card.dataset.ratio || "1:1");
 
     const width = span * colWidth + (span - 1) * GAP;
     let height;
@@ -183,12 +191,12 @@ function measureExpandedHeight(card, width) {
       height = Math.round(width * (ratio.h / ratio.w));
     }
 
-    // Greedy placement across columns
-    let bestCol = 0, bestY = Infinity;
-    for (let c = 0; c <= cols - span; c++) {
-      const y = Math.max(...heights.slice(c, c + span));
-      if (y < bestY) { bestY = y; bestCol = c; }
-    }
+      // Greedy placement across columns
+      let bestCol = 0, bestY = Infinity;
+      for (let c = 0; c <= cols - span; c++) {
+        const y = Math.max(...heights.slice(c, c + span));
+        if (y < bestY) { bestY = y; bestCol = c; }
+      }
 
     const x = bestCol * (colWidth + GAP);
 
@@ -230,20 +238,20 @@ cards.forEach((card) => {
       card.classList.remove("expanded");
     }
 
-    // Let the DOM apply the expanded state before measuring
-    requestAnimationFrame(() => {
+      // Let the DOM apply the expanded state before measuring
       requestAnimationFrame(() => {
-        layout();
-        if (willExpand) {
-          const pos = posCache.get(card);
-          if (scroller && pos) {
-            scroller.scrollTo({ top: Math.max(0, pos.y - 12), behavior: "smooth" });
+        requestAnimationFrame(() => {
+          layout();
+          if (willExpand) {
+            const pos = posCache.get(card);
+            if (scroller && pos) {
+              scroller.scrollTo({ top: Math.max(0, pos.y - 12), behavior: "smooth" });
+            }
           }
-        }
+        });
       });
     });
   });
-});
 
 // Re-layout on resize
 let resizeTimer;
@@ -271,7 +279,9 @@ layout();
       }
     }
 
-    const target = cards.find((c) => String(c.dataset.page) === String(pageNumber));
+    const target = cards.find(
+      (c) => String(c.dataset.page) === String(pageNumber)
+    );
     if (!target) return;
 
     // Expand target and collapse others
