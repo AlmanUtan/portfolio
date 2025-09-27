@@ -3,395 +3,680 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Asterisk Portfolio - Merged</title>
-
-    <style>
-      html,
-      body {
-        margin: 0;
-        padding: 0;
-        overflow: hidden; /* custom scroll via JS */
-        background: #ffff; /* darker base to match gallery vibe */
-        height: 100%;
-      }
-
-      /* 3D canvas */
-      #canvas-container {
-        width: 100vw;
-        height: 100vh;
-        position: fixed;
-        top: 0;
-        left: 0;
-        z-index: 1;
-      }
-
-      #toggle-rotation-btn {
-        position: absolute;
-        top: 20px;
-        right: 30px;
-        z-index: 5;
-        padding: 10px 18px;
-        background: #fff;
-        border: 1px solid #ccc;
-        border-radius: 6px;
-        font-size: 16px;
-        cursor: pointer;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
-        transition: background 0.2s;
-        display: block;
-      }
-
-      /* Subpages (opened by clicking orbiting tiles) */
-      .subpage {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        background: white;
-        z-index: 1000;
-        display: none;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        font-size: 48px;
-        font-weight: bold;
-        color: #333;
-      }
-      .close-btn {
-        position: absolute;
-        top: 30px;
-        right: 30px;
-        padding: 10px 20px;
-        background: #333;
-        color: white;
-        border: none;
-        border-radius: 6px;
-        font-size: 16px;
-        cursor: pointer;
-      }
-      .close-btn:hover {
-        background: #555;
-      }
-
-      /* Start overlay (black welcome) */
-      #start-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        background: #000;
-        z-index: 2000;
-        opacity: 1;
-        transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-        pointer-events: auto;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-      }
-      #start-overlay.hidden {
-        opacity: 0;
-        pointer-events: none;
-      }
-      #start-overlay h1 {
-        color: #fff;
-        font-size: 2.5rem;
-        font-family: monospace;
-        letter-spacing: 0.1em;
-        text-align: center;
-        margin: 0;
-      }
-
-      /* Gallery overlay - progressive pull-up */
-      #galleryOverlay {
-        position: fixed;
-        left: 50%;
-        bottom: 32px;
-        transform: translateX(-50%) translateY(100%); /* JS adjusts Y progressively */
-        width: min(1400px, calc(100vw - 64px));
-        height: calc(100vh - 64px);
-        border-radius: 24px;
-        overflow: hidden;
-        z-index: 2500;
-
-        /* Dark gray blurred background */
-        backdrop-filter: blur(16px) saturate(1.05);
-        -webkit-backdrop-filter: blur(16px) saturate(1.05);
-        background: linear-gradient(
-          180deg,
-          rgba(24, 26, 31, 0.92) 0%,
-          rgba(14, 16, 20, 0.94) 100%
-        );
-        border: 1px solid rgba(255, 255, 255, 0.06);
-        box-shadow: 0 30px 80px rgba(0, 0, 0, 0.45),
-          0 4px 16px rgba(0, 0, 0, 0.25);
-
-        opacity: 0; /* JS fades up progressively */
-        pointer-events: none; /* enabled when almost open */
-      }
-
-      .galleryHeader {
-        position: sticky;
-        top: 0;
-        z-index: 1;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 12px 16px;
-        background: linear-gradient(
-          180deg,
-          rgba(18, 20, 24, 0.9),
-          rgba(18, 20, 24, 0.4)
-        );
-        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-        backdrop-filter: blur(6px);
-      }
-      .galleryTitle {
-        font: 600 15px/1.2 system-ui, -apple-system, Segoe UI, Roboto,
-          "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji",
-          "Segoe UI Emoji";
-        letter-spacing: 0.02em;
-        color: #e5e7eb;
-      }
-      .galleryClose {
-        border: 0;
-        background: rgba(255, 255, 255, 0.12);
-        color: #e5e7eb;
-        padding: 8px 12px;
-        border-radius: 10px;
-        cursor: pointer;
-        font-size: 14px;
-      }
-      .galleryClose:hover {
-        background: rgba(255, 255, 255, 0.18);
-      }
-
-      .galleryScroll {
-        position: relative;
-        height: calc(100% - 48px);
-        overflow-y: auto;
-        overscroll-behavior: contain;
-        padding: 16px;
-      }
-
-      /* Organic blob grid with size variants */
-      .blobGrid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-        gap: 18px;
-        grid-auto-rows: 120px; /* enables span sizes */
-      }
-      .blobCard {
-        position: relative;
-        padding: 16px;
-        color: #e2e8f0;
-        background: radial-gradient(
-          120% 120% at 0% 0%,
-          rgba(46, 52, 64, 0.35) 0%,
-          rgba(39, 44, 54, 0.5) 100%
-        );
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18),
-          inset 0 1px 0 rgba(255, 255, 255, 0.08);
-        border: 1px solid rgba(255, 255, 255, 0.06);
-        overflow: hidden;
-        transition: transform 0.15s ease, box-shadow 0.2s ease;
-        min-height: unset; /* size from grid */
-      }
-      .blobCard:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.28);
-      }
-      .blobCard:nth-child(3n + 1) {
-        border-radius: 26px 42px 30px 18px;
-      }
-      .blobCard:nth-child(3n + 2) {
-        border-radius: 18px 28px 44px 22px;
-      }
-      .blobCard:nth-child(3n) {
-        border-radius: 36px 20px 20px 40px;
-      }
-
-      /* Size variants */
-      .span-2x {
-        grid-column: span 2;
-      }
-      .span-2y {
-        grid-row: span 2;
-      }
-      .span-2x2y {
-        grid-column: span 2;
-        grid-row: span 2;
-      }
-
-      .blobMeta {
-        font: 600 14px/1.3 system-ui, -apple-system, Segoe UI, Roboto, Arial;
-        margin-bottom: 6px;
-        color: #f3f4f6;
-      }
-      .blobDesc {
-        font: 400 13px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Arial;
-        color: #cbd5e1;
-      }
-    </style>
+    <title>Elia Römpler - Portfolio</title>
+    <link rel="icon" type="image/png" href="public/img/IMG_6999.PNG" />
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="https://use.typekit.net/yyn5dss.css" />
   </head>
 
   <body>
+    <div class="navigation">
+      <button class="hamburger" onclick="openMenu()">
+        <div id="bar1" class="bar"></div>
+        <div id="bar2" class="bar"></div>
+        <div id="bar3" class="bar"></div>
+      </button>
+
+      <nav>
+        <ul>
+          <li><a href="">Home</a></li>
+          <li><a href="">Gallery</a></li>
+          <li><a href="">About</a></li>
+        </ul>
+      </nav>
+
+      <div class="socials">
+        <a
+          href="https://www.linkedin.com/in/elia-r%C3%B6mpler-5b4b9823b/"
+          target="_blank"
+          >LinkedIn</a
+        >
+        <a href="https://www.instagram.com/elia.roempler/" target="_blank"
+          >Instagram</a
+        >
+        <a href="http://behance.com" target="_blank">Behance</a>
+      </div>
+
+      <div class="asterisk-image">
+        <img src="public/img/IMG_6999.PNG" alt="asterisk" />
+      </div>
+    </div>
+
     <div id="canvas-container"></div>
     <button id="toggle-rotation-btn">Pause Rotation</button>
+    <p>
+      //scroll to zoom in and out <br />
+      //press space to stop and resume the rotation
+    </p>
 
-    <div id="start-overlay"><h1>Welcome</h1></div>
-
-    <!-- Subpages -->
-    <div id="subpage-1" class="subpage">
-      <button class="close-btn" onclick="closeSubpage()">Close</button>
-      <div>Page 1</div>
-    </div>
-    <div id="subpage-2" class="subpage">
-      <button class="close-btn" onclick="closeSubpage()">Close</button>
-      <div>Page 2</div>
-    </div>
-    <div id="subpage-3" class="subpage">
-      <button class="close-btn" onclick="closeSubpage()">Close</button>
-      <div>Page 3</div>
-    </div>
-    <div id="subpage-4" class="subpage">
-      <button class="close-btn" onclick="closeSubpage()">Close</button>
-      <div>Page 4</div>
-    </div>
-    <div id="subpage-5" class="subpage">
-      <button class="close-btn" onclick="closeSubpage()">Close</button>
-      <div>Page 5</div>
-    </div>
-    <div id="subpage-6" class="subpage">
-      <button class="close-btn" onclick="closeSubpage()">Close</button>
-      <div>Page 6</div>
-    </div>
-    <div id="subpage-7" class="subpage">
-      <button class="close-btn" onclick="closeSubpage()">Close</button>
-      <div>Page 7</div>
-    </div>
-    <div id="subpage-8" class="subpage">
-      <button class="close-btn" onclick="closeSubpage()">Close</button>
-      <div>Page 8</div>
+    <!-- Intro overlay with video -->
+    <div id="start-overlay" aria-hidden="false">
+      <video id="introVideo" autoplay muted playsinline preload="auto">
+        <source src="public/vid/platz.mp4" type="video/mp4" />
+      </video>
+      <!-- Small mute/unmute toggle in top-right -->
+      <button
+        id="introMuteToggle"
+        aria-label="Toggle audio"
+        title="Toggle audio"
+      >
+        🔇
+      </button>
+      <!-- Fallback play button if autoplay is blocked -->
+      <button id="introPlayBtn" aria-label="Play intro" hidden>Play</button>
     </div>
 
     <!-- GALLERY OVERLAY -->
     <section id="galleryOverlay" aria-hidden="true">
-      <header class="galleryHeader">
-        <div class="galleryTitle">Projects Gallery</div>
-        <button id="closeGalleryBtn" class="galleryClose" type="button">
-          Close
-        </button>
-      </header>
       <div id="galleryScroll" class="galleryScroll" tabindex="-1">
-        <div class="blobGrid" id="galleryGrid">
-          <article class="blobCard span-2x2y">
-            <div class="blobMeta">Project One</div>
-            <div class="blobDesc">Large feature item (2x2).</div>
-          </article>
-          <article class="blobCard span-2x">
-            <div class="blobMeta">Project Two</div>
-            <div class="blobDesc">Wide rectangle, showcases screenshots.</div>
-          </article>
-          <article class="blobCard">
-            <div class="blobMeta">Project Three</div>
-            <div class="blobDesc">Compact square card.</div>
-          </article>
-          <article class="blobCard span-2y">
-            <div class="blobMeta">Project Four</div>
-            <div class="blobDesc">Tall rectangle with a short description.</div>
-          </article>
-          <article class="blobCard">
-            <div class="blobMeta">Project Five</div>
-            <div class="blobDesc">More content…</div>
-          </article>
-          <article class="blobCard">
-            <div class="blobMeta">Project Six</div>
-            <div class="blobDesc">More content…</div>
-          </article>
-          <article class="blobCard span-2x">
-            <div class="blobMeta">Project Seven</div>
-            <div class="blobDesc">A wider rectangle.</div>
-          </article>
-          <article class="blobCard">
-            <div class="blobMeta">Project Eight</div>
-            <div class="blobDesc">More content…</div>
-          </article>
-          <article class="blobCard">
-            <div class="blobMeta">Project Nine</div>
-            <div class="blobDesc">More content…</div>
-          </article>
-          <article class="blobCard span-2y">
-            <div class="blobMeta">Project Ten</div>
-            <div class="blobDesc">Tall layout for case study.</div>
-          </article>
-          <article class="blobCard">
-            <div class="blobMeta">Project Eleven</div>
-            <div class="blobDesc">More content…</div>
-          </article>
-          <article class="blobCard">
-            <div class="blobMeta">Project Twelve</div>
-            <div class="blobDesc">More content…</div>
-          </article>
-          <article class="blobCard span-2x2y">
-            <div class="blobMeta">Project Thirteen</div>
-            <div class="blobDesc">Another large highlight (2x2).</div>
-          </article>
-          <article class="blobCard">
-            <div class="blobMeta">Project Fourteen</div>
-            <div class="blobDesc">More content…</div>
-          </article>
-          <article class="blobCard span-2x">
-            <div class="blobMeta">Project Fifteen</div>
-            <div class="blobDesc">Wide rectangle.</div>
-          </article>
-          <article class="blobCard">
-            <div class="blobMeta">Project Sixteen</div>
-            <div class="blobDesc">More content…</div>
-          </article>
-          <article class="blobCard">
-            <div class="blobMeta">Project Seventeen</div>
-            <div class="blobDesc">More content…</div>
-          </article>
-          <article class="blobCard span-2y">
-            <div class="blobMeta">Project Eighteen</div>
-            <div class="blobDesc">Tall layout.</div>
-          </article>
-          <article class="blobCard">
-            <div class="blobMeta">Project Nineteen</div>
-            <div class="blobDesc">More content…</div>
-          </article>
-          <article class="blobCard">
-            <div class="blobMeta">Project Twenty</div>
-            <div class="blobDesc">More content…</div>
-          </article>
+        <div class="galleryGrid">
+          <!-- Header row -->
+          <header class="galleryRow galleryHeaderRow">
+            <div class="galleryTitle">PROJECTS GALLERY</div>
+            <button id="closeGalleryBtn" class="galleryClose" type="button">
+              Close
+            </button>
+          </header>
+
+          <div id="galleryList" class="organicGrid">
+            <!-------------------------------------------- Card 1 -------------------------------------------->
+
+            <!-- Example cards as provided -->
+            <article
+              class="projectCard"
+              data-page="1"
+              style="--card-ar: 16/9"
+              data-tier="main"
+            >
+              <div class="cardPreview" style="--card-ar: 16/9">
+                <span class="projectName">übertön</span>
+                <video
+                  class="previewVideo"
+                  src="public/vid/%C3%BCbert%C3%B6n%20main%20(1920x1080).mp4"
+                  muted
+                  autoplay
+                  loop
+                  playsinline
+                  preload="metadata"
+                ></video>
+              </div>
+
+              <div class="cardDetails" style="--video-ar: 16/9">
+                <div class="videoWrapper">
+                  <!-- Prefer MP4 for web; if you only have MOV, either change type or omit type -->
+                  <video
+                    class="detailVideo"
+                    controls
+                    playsinline
+                    preload="metadata"
+                  >
+                    <source
+                      src="public/vid/%C3%BCbert%C3%B6n%20main%20(1920x1080).mp4"
+                      type="video/mp4"
+                    />
+                  </video>
+                </div>
+
+                <div class="projectDescription">
+                  <h3>Description</h3>
+                  <p>
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                    Duis posuere condimentum tellus eget tristique.
+                  </p>
+                </div>
+                <div class="projectProcess">
+                  <h3>Process</h3>
+                  <p>
+                    Lorem ipsum dolor sit amet, consectetur adipisicing elit.
+                    Repellendus deleniti, autem explicabo quisquam numquam
+                    accusamus.
+                  </p>
+                </div>
+              </div>
+            </article>
+            <!-------------------------------------------- Card 2 -------------------------------------------->
+            <article
+              class="projectCard"
+              data-page="2"
+              style="--card-ar: 16/9"
+              data-tier="main"
+            >
+              <div class="cardPreview" style="--card-ar: 16/9">
+                <span class="projectName">wdtw</span>
+                <video
+                  class="previewVideo"
+                  src="public/vid/wdtw%20v1%20%281920x1080%29.mp4"
+                  muted
+                  autoplay
+                  loop
+                  playsinline
+                  preload="metadata"
+                ></video>
+              </div>
+
+              <div class="cardDetails" style="--video-ar: 16/9">
+                <div class="videoWrapper">
+                  <!-- Prefer MP4 for web; if you only have MOV, either change type or omit type -->
+                  <video
+                    class="detailVideo"
+                    controls
+                    playsinline
+                    preload="metadata"
+                  >
+                    <source
+                      src="public/vid/wdtw%20v1%20%281920x1080%29.mp4"
+                      type="video/mp4"
+                    />
+                  </video>
+                </div>
+
+                <div class="projectDescription">
+                  <h3>Description</h3>
+                  <p>
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                    Duis posuere condimentum tellus eget tristique.
+                  </p>
+                </div>
+                <div class="projectProcess">
+                  <h3>Process</h3>
+                  <p>
+                    Lorem ipsum dolor sit amet, consectetur adipisicing elit.
+                    Repellendus deleniti, autem explicabo quisquam numquam
+                    accusamus.
+                  </p>
+                </div>
+              </div>
+            </article>
+            <!-------------------------------------------- Card 3 -------------------------------------------->
+            <article
+              class="projectCard"
+              data-page="3"
+              style="--card-ar: 16/9"
+              data-tier="main"
+            >
+              <div class="cardPreview" style="--card-ar: 16/9">
+                <span class="projectName">giftedness</span>
+                <video
+                  class="previewVideo"
+                  src="public/vid/giftedness%20%281920x1080%29.mp4"
+                  muted
+                  autoplay
+                  loop
+                  playsinline
+                  preload="metadata"
+                ></video>
+              </div>
+
+              <div class="cardDetails" style="--video-ar: 16/9">
+                <div class="videoWrapper">
+                  <!-- Prefer MP4 for web; if you only have MOV, either change type or omit type -->
+                  <video
+                    class="detailVideo"
+                    controls
+                    playsinline
+                    preload="metadata"
+                  >
+                    <source
+                      src="public/vid/giftedness%20%281920x1080%29.mp4"
+                      type="video/mp4"
+                    />
+                  </video>
+                </div>
+
+                <div class="projectDescription">
+                  <h3>Description</h3>
+                  <p>
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                    Duis posuere condimentum tellus eget tristique.
+                  </p>
+                </div>
+                <div class="projectProcess">
+                  <h3>Process</h3>
+                  <p>
+                    Lorem ipsum dolor sit amet, consectetur adipisicing elit.
+                    Repellendus deleniti, autem explicabo quisquam numquam
+                    accusamus.
+                  </p>
+                </div>
+              </div>
+            </article>
+            <!-------------------------------------------- Card 4 -------------------------------------------->
+            <article
+              class="projectCard"
+              data-page="4"
+              style="--card-ar: 16/9"
+              data-tier="main"
+            >
+              <div class="cardPreview" style="--card-ar: 16/9">
+                <span class="projectName">Nacht in Contrast</span>
+                <video
+                  class="previewVideo"
+                  src="public/vid/nachtInContrast%20%281920x1080%29.mp4"
+                  muted
+                  autoplay
+                  loop
+                  playsinline
+                  preload="metadata"
+                ></video>
+              </div>
+
+              <div class="cardDetails" style="--video-ar: 16/9">
+                <div class="videoWrapper">
+                  <!-- Prefer MP4 for web; if you only have MOV, either change type or omit type -->
+                  <video
+                    class="detailVideo"
+                    controls
+                    playsinline
+                    preload="metadata"
+                  >
+                    <source
+                      src="public/vid/nachtInContrast%20%281920x1080%29.mp4"
+                      type="video/mp4"
+                    />
+                  </video>
+                </div>
+
+                <div class="projectDescription">
+                  <h3>Description</h3>
+                  <p>
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                    Duis posuere condimentum tellus eget tristique.
+                  </p>
+                </div>
+                <div class="projectProcess">
+                  <h3>Process</h3>
+                  <p>
+                    Lorem ipsum dolor sit amet, consectetur adipisicing elit.
+                    Repellendus deleniti, autem explicabo quisquam numquam
+                    accusamus.
+                  </p>
+                </div>
+              </div>
+            </article>
+            <!-------------------------------------------- Card 5 -------------------------------------------->
+            <article class="projectCard" data-page="5" style="--card-ar: 2/3">
+              <div class="cardPreview" style="--card-ar: 2/3">
+                <span class="projectName">3d audio spectrum</span>
+                <video
+                  class="previewVideo"
+                  src="public/vid/extra%201%20%281240x1536%29.mp4"
+                  muted
+                  autoplay
+                  loop
+                  playsinline
+                  preload="metadata"
+                ></video>
+              </div>
+
+              <div class="cardDetails" style="--video-ar: 2/3">
+                <div class="videoWrapper">
+                  <!-- Prefer MP4 for web; if you only have MOV, either change type or omit type -->
+                  <video
+                    class="detailVideo"
+                    controls
+                    playsinline
+                    preload="metadata"
+                  >
+                    <source
+                      src="public/vid/extra%201%20%281240x1536%29.mp4"
+                      type="video/mp4"
+                    />
+                  </video>
+                </div>
+              </div>
+            </article>
+            <!-------------------------------------------- Card 6 -------------------------------------------->
+            <article class="projectCard" data-page="6" style="--card-ar: 1/1">
+              <div class="cardPreview" style="--card-ar: 1/1">
+                <span class="projectName">cursor feedback</span>
+                <video
+                  class="previewVideo"
+                  src="public/vid/extra%202%20%281080x1080%29.mp4"
+                  muted
+                  autoplay
+                  loop
+                  playsinline
+                  preload="metadata"
+                ></video>
+              </div>
+
+              <div class="cardDetails" style="--video-ar: 1/1">
+                <div class="videoWrapper">
+                  <!-- Prefer MP4 for web; if you only have MOV, either change type or omit type -->
+                  <video
+                    class="detailVideo"
+                    controls
+                    playsinline
+                    preload="metadata"
+                  >
+                    <source
+                      src="public/vid/extra%202%20%281080x1080%29.mp4"
+                      type="video/mp4"
+                    />
+                  </video>
+                </div>
+              </div>
+            </article>
+            <!-------------------------------------------- Card 7 -------------------------------------------->
+            <article
+              class="projectCard"
+              data-page="7"
+              style="--card-ar: 1080/576"
+            >
+              <div class="cardPreview" style="--card-ar: 1080/576">
+                <span class="projectName">blob tracker</span>
+                <video
+                  class="previewVideo"
+                  src="public/vid/extra%203%20%281080x576%29.mp4"
+                  muted
+                  autoplay
+                  loop
+                  playsinline
+                  preload="metadata"
+                ></video>
+              </div>
+
+              <div class="cardDetails" style="--video-ar: 1080/576">
+                <div class="videoWrapper">
+                  <!-- Prefer MP4 for web; if you only have MOV, either change type or omit type -->
+                  <video
+                    class="detailVideo"
+                    controls
+                    playsinline
+                    preload="metadata"
+                  >
+                    <source
+                      src="public/vid/extra%203%20%281080x576%29.mp4"
+                      type="video/mp4"
+                    />
+                  </video>
+                </div>
+              </div>
+            </article>
+            <!-------------------------------------------- Card 8 -------------------------------------------->
+            <article class="projectCard" data-page="8" style="--card-ar: 1/1">
+              <div class="cardPreview" style="--card-ar: 1/1">
+                <span class="projectName">ASCII</span>
+                <video
+                  class="previewVideo"
+                  src="public/vid/extra%204%20%281080x1080%29.mp4"
+                  muted
+                  autoplay
+                  loop
+                  playsinline
+                  preload="metadata"
+                ></video>
+              </div>
+
+              <div class="cardDetails" style="--video-ar: 1/1">
+                <div class="videoWrapper">
+                  <!-- Prefer MP4 for web; if you only have MOV, either change type or omit type -->
+                  <video
+                    class="detailVideo"
+                    controls
+                    playsinline
+                    preload="metadata"
+                  >
+                    <source
+                      src="public/vid/extra%204%20%281080x1080%29.mp4"
+                      type="video/mp4"
+                    />
+                  </video>
+                </div>
+              </div>
+            </article>
+            <!-------------------------------------------- Card 9 -------------------------------------------->
+            <article class="projectCard" data-page="9" style="--card-ar: 16/9">
+              <div class="cardPreview" style="--card-ar: 16/9">
+                <span class="projectName">glitch switch</span>
+                <video
+                  class="previewVideo"
+                  src="public/vid/extra%205%20%281280x720%29.mp4"
+                  muted
+                  autoplay
+                  loop
+                  playsinline
+                  preload="metadata"
+                ></video>
+              </div>
+
+              <div class="cardDetails" style="--video-ar: 16/9">
+                <div class="videoWrapper">
+                  <!-- Prefer MP4 for web; if you only have MOV, either change type or omit type -->
+                  <video
+                    class="detailVideo"
+                    controls
+                    playsinline
+                    preload="metadata"
+                  >
+                    <source
+                      src="public/vid/extra%205%20%281280x720%29.mp4"
+                      type="video/mp4"
+                    />
+                  </video>
+                </div>
+              </div>
+            </article>
+            <!-------------------------------------------- Card 10 -------------------------------------------->
+            <article class="projectCard" data-page="10" style="--card-ar: 1/1">
+              <div class="cardPreview" style="--card-ar: 1/1">
+                <span class="projectName">asteriks</span>
+                <video
+                  class="previewVideo"
+                  src="public/vid/extra%207%20%281080x1080%29.mp4"
+                  muted
+                  autoplay
+                  loop
+                  playsinline
+                  preload="metadata"
+                ></video>
+              </div>
+
+              <div class="cardDetails" style="--video-ar: 1/1">
+                <div class="videoWrapper">
+                  <!-- Prefer MP4 for web; if you only have MOV, either change type or omit type -->
+                  <video
+                    class="detailVideo"
+                    controls
+                    playsinline
+                    preload="metadata"
+                  >
+                    <source
+                      src="public/vid/extra%207%20%281080x1080%29.mp4"
+                      type="video/mp4"
+                    />
+                  </video>
+                </div>
+              </div>
+            </article>
+            <!-------------------------------------------- Card 11 -------------------------------------------->
+            <article class="projectCard" data-page="10" style="--card-ar: 16/9">
+              <div class="cardPreview" style="--card-ar: 16/9">
+                <span class="projectName">circuit bend</span>
+                <video
+                  class="previewVideo"
+                  src="public/vid/extra%206%20%281280x720%29.mp4"
+                  muted
+                  autoplay
+                  loop
+                  playsinline
+                  preload="metadata"
+                ></video>
+              </div>
+
+              <div class="cardDetails" style="--video-ar: 16/9">
+                <div class="videoWrapper">
+                  <!-- Prefer MP4 for web; if you only have MOV, either change type or omit type -->
+                  <video
+                    class="detailVideo"
+                    controls
+                    playsinline
+                    preload="metadata"
+                  >
+                    <source
+                      src="public/vid/extra%206%20%281280x720%29.mp4"
+                      type="video/mp4"
+                    />
+                  </video>
+                </div>
+              </div>
+            </article>
+            <!-------------------------------------------- Card 12 -------------------------------------------->
+            <article class="projectCard" data-page="10" style="--card-ar: 1/1">
+              <div class="cardPreview" style="--card-ar: 1/1">
+                <span class="projectName">particle cloud 1</span>
+                <video
+                  class="previewVideo"
+                  src="public/vid/extra%208%20%281080x1080%29.mp4"
+                  muted
+                  autoplay
+                  loop
+                  playsinline
+                  preload="metadata"
+                ></video>
+              </div>
+
+              <div class="cardDetails" style="--video-ar: 1/1">
+                <div class="videoWrapper">
+                  <!-- Prefer MP4 for web; if you only have MOV, either change type or omit type -->
+                  <video
+                    class="detailVideo"
+                    controls
+                    playsinline
+                    preload="metadata"
+                  >
+                    <source
+                      src="public/vid/extra%208%20%281080x1080%29.mp4"
+                      type="video/mp4"
+                    />
+                  </video>
+                </div>
+              </div>
+            </article>
+
+            <!-------------------------------------------- Card 13 -------------------------------------------->
+            <article
+              class="projectCard"
+              data-page="10"
+              style="--card-ar: 640/720"
+            >
+              <div class="cardPreview" style="--card-ar: 640/720">
+                <span class="projectName">hand tracking</span>
+                <video
+                  class="previewVideo"
+                  src="public/vid/extra%209%20%28640x720%29.mp4"
+                  muted
+                  autoplay
+                  loop
+                  playsinline
+                  preload="metadata"
+                ></video>
+              </div>
+
+              <div class="cardDetails" style="--video-ar: 640/720">
+                <div class="videoWrapper">
+                  <!-- Prefer MP4 for web; if you only have MOV, either change type or omit type -->
+                  <video
+                    class="detailVideo"
+                    controls
+                    playsinline
+                    preload="metadata"
+                  >
+                    <source
+                      src="public/vid/extra%209%20%28640x720%29.mp4"
+                      type="video/mp4"
+                    />
+                  </video>
+                </div>
+              </div>
+            </article>
+            <!-------------------------------------------- Card 14 -------------------------------------------->
+            <article class="projectCard" data-page="10" style="--card-ar: 1/1">
+              <div class="cardPreview" style="--card-ar: 1/1">
+                <span class="projectName">ASCII 2</span>
+                <video
+                  class="previewVideo"
+                  src="public/vid/extra%2010%20%281080x1080%29.mp4"
+                  muted
+                  autoplay
+                  loop
+                  playsinline
+                  preload="metadata"
+                ></video>
+              </div>
+
+              <div class="cardDetails" style="--video-ar: 1/1">
+                <div class="videoWrapper">
+                  <!-- Prefer MP4 for web; if you only have MOV, either change type or omit type -->
+                  <video
+                    class="detailVideo"
+                    controls
+                    playsinline
+                    preload="metadata"
+                  >
+                    <source
+                      src="public/vid/extra%2010%20%281080x1080%29.mp4"
+                      type="video/mp4"
+                    />
+                  </video>
+                </div>
+              </div>
+            </article>
+            <!-------------------------------------------- Card 15 -------------------------------------------->
+            <article class="projectCard" data-page="10" style="--card-ar: 1/1">
+              <div class="cardPreview" style="--card-ar: 1/1">
+                <span class="projectName">tanzen</span>
+                <video
+                  class="previewVideo"
+                  src="public/vid/extra11%20%281080x1080%29.mp4"
+                  muted
+                  autoplay
+                  loop
+                  playsinline
+                  preload="metadata"
+                ></video>
+              </div>
+
+              <div class="cardDetails" style="--video-ar: 1/1">
+                <div class="videoWrapper">
+                  <!-- Prefer MP4 for web; if you only have MOV, either change type or omit type -->
+                  <video
+                    class="detailVideo"
+                    controls
+                    playsinline
+                    preload="metadata"
+                  >
+                    <source
+                      src="public/vid/extra11%20%281080x1080%29.mp4"
+                      type="video/mp4"
+                    />
+                  </video>
+                </div>
+              </div>
+            </article>
+          </div>
         </div>
       </div>
     </section>
 
-    <script>
-      function openSubpage(pageNumber) {
-        document.getElementById("subpage-" + pageNumber).style.display = "flex";
-      }
-      function closeSubpage() {
-        const subpages = document.querySelectorAll(".subpage");
-        subpages.forEach((page) => (page.style.display = "none"));
-      }
-    </script>
+    <!-- Your UI/gallery/masonry JS -->
+    <script src="script.js"></script>
 
-    <!-- Only change: imports now use esm.sh; no import maps or shims needed -->
+    <!-- 3D app -->
     <script type="module">
       import * as THREE from "https://esm.sh/three@0.160.0";
       import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
+
+      // Easing
+      const easeInOutCubic = (t) =>
+        t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 
       // --- Scene Setup ---
       class SceneManager {
         constructor(container) {
           this.container = container;
           this.scene = new THREE.Scene();
-          this.scene.background = null; // transparent over dark page bg
+          this.scene.background = null;
 
           this.setupRenderer();
           this.setupCamera();
@@ -400,11 +685,9 @@
 
           this.animationCallbacks = [];
 
-          // Raycasting
           this.raycaster = new THREE.Raycaster();
           this.mouse = new THREE.Vector2();
 
-          // For click/drag distinction
           this.isDragging = false;
           this.mouseDownPos = { x: 0, y: 0 };
           this.mouseUpPos = { x: 0, y: 0 };
@@ -421,7 +704,6 @@
 
           window.addEventListener("resize", () => this.onWindowResize());
 
-          // Mouse listeners
           window.addEventListener("mousemove", (event) =>
             this.onMouseMove(event)
           );
@@ -442,8 +724,7 @@
             0.1,
             1000
           );
-          // Initial close-up
-          this.initialPosition = new THREE.Vector3(0, 0, 0.35);
+          this.initialPosition = new THREE.Vector3(0, 0, 0.5);
           this.initialLookAt = new THREE.Vector3(0, 0, 0);
           this.camera.position.copy(this.initialPosition);
           this.camera.lookAt(this.initialLookAt);
@@ -465,7 +746,7 @@
           );
           this.controls.enablePan = false;
           this.controls.enableZoom = true;
-          this.controls.minDistance = 0.35;
+          this.controls.minDistance = 0.5;
           this.controls.maxDistance = 8.0;
           this.controls.enableDamping = true;
           this.controls.dampingFactor = 0.18;
@@ -539,7 +820,7 @@
           const group = new THREE.Group();
           const armLength = size * 1.6;
           const armWidth = size * 0.35;
-          const armDepth = size * 0.3;
+          const armDepth = size * 0.45;
           const material = new THREE.MeshLambertMaterial({ color });
 
           for (let i = 0; i < 6; i++) {
@@ -560,16 +841,54 @@
       }
 
       // --- Orbiting Rectangles with Numbers ---
+      // --- Orbiting Rectangles showing gallery preview videos ---
       class OrbitingRectanglesManager {
         constructor(radius = 2.2, baseSurfaceArea = 1.44) {
           this.group = new THREE.Group();
           this.rects = [];
 
+          // Collect gallery cards and their preview video src + page numbers
+          const cards = Array.from(
+            document.querySelectorAll("#galleryList .projectCard")
+          );
+          const videoEntries = cards
+            .map((card, idx) => {
+              const pv = card.querySelector(".previewVideo");
+              // Prefer preview src (loop/muted/short). Fallback to detail <source>
+              const src =
+                pv?.getAttribute("src") ||
+                card
+                  .querySelector(".cardDetails source")
+                  ?.getAttribute("src") ||
+                "";
+              const page = Number(card.dataset.page || idx + 1);
+              // Aspect ratio: from --card-ar on .cardPreview, fallback 16/9
+              const cp = card.querySelector(".cardPreview");
+              let ar = "16/9";
+              if (cp) {
+                const v = getComputedStyle(cp)
+                  .getPropertyValue("--card-ar")
+                  .trim();
+                if (v) ar = v;
+              }
+              // normalize "16/9" or "16:9" to number
+              const parts = ar.split(/[/:]/).map(Number);
+              const aspect =
+                parts[0] && parts[1] ? parts[0] / parts[1] : 16 / 9;
+              return { src, page, aspect };
+            })
+            .filter((e) => !!e.src); // only use entries that have a video
+
+          // If no videos found, bail out (keep previous behavior)
+          if (!videoEntries.length) return;
+
+          // Keep your current rectangle count/dispersion by reusing your formats list
           let formats = [
             ...Array(2).fill(1.0),
             ...Array(3).fill(16 / 9),
             ...Array(3).fill(3 / 2),
           ];
+          // Light shuffle to keep organic placement feel
           formats = formats
             .map((value) => ({ value, sort: Math.random() }))
             .sort((a, b) => a.sort - b.sort)
@@ -580,11 +899,18 @@
           const maxRadius = radius * 1.22;
 
           for (let i = 0; i < totalRects; i++) {
-            const aspectRatio = formats[i];
-            const width = Math.sqrt(baseSurfaceArea * aspectRatio);
-            const height = Math.sqrt(baseSurfaceArea / aspectRatio);
+            // Cycle through available videos if there are fewer videos than rectangles
+            const entry = videoEntries[i % videoEntries.length];
+            const pageNumber = entry.page;
 
-            // Spherical Fibonacci lattice with jitter
+            // Target aspect ratio for this rect = average of layout format and video’s aspect
+            const rectAspect = (formats[i] + entry.aspect) / 2;
+
+            // Size from base surface area and aspect
+            const width = Math.sqrt(baseSurfaceArea * rectAspect);
+            const height = Math.sqrt(baseSurfaceArea / rectAspect);
+
+            // Spherical Fibonacci-ish spread with small jitter
             const t = i / totalRects;
             const inclination = Math.acos(1 - 2 * t);
             const azimuth = Math.PI * (1 + Math.sqrt(5)) * i;
@@ -594,69 +920,37 @@
             const py = r * Math.cos(inclination);
             const pz = r * Math.sin(inclination) * Math.sin(azimuth);
 
+            // Create an off-DOM HTMLVideoElement for the texture
+            const vid = document.createElement("video");
+            vid.src = entry.src;
+            vid.muted = true; // required for autoplay
+            vid.loop = true;
+            vid.playsInline = true; // iOS inline playback
+            vid.preload = "auto";
+            // Try to start; ignore if browser delays until user gesture
+            try {
+              const p = vid.play();
+              if (p && typeof p.then === "function") p.catch(() => {});
+            } catch (e) {}
+
+            // Build a THREE.VideoTexture
+            const vtex = new THREE.VideoTexture(vid);
+            // three r160: colorSpace replaces encoding
+            vtex.colorSpace = THREE.SRGBColorSpace;
+            vtex.minFilter = THREE.LinearFilter;
+            vtex.magFilter = THREE.LinearFilter;
+
             const geometry = new THREE.PlaneGeometry(width, height);
-
-            function makeNumberTexture(num) {
-              const canvas = document.createElement("canvas");
-              const context = canvas.getContext("2d");
-              canvas.width = 256;
-              canvas.height = 256;
-              context.fillStyle = "#3a7bd5";
-              context.fillRect(0, 0, canvas.width, canvas.height);
-              context.fillStyle = "white";
-              context.font = "bold 120px Arial";
-              context.textAlign = "center";
-              context.textBaseline = "middle";
-              context.fillText(
-                num.toString(),
-                canvas.width / 2,
-                canvas.height / 2
-              );
-              return new THREE.CanvasTexture(canvas);
-            }
-
-            // Base plane (for hit area)
-            const material = new THREE.MeshLambertMaterial({
-              color: 0x3a7bd5,
-              side: THREE.DoubleSide,
+            const material = new THREE.MeshBasicMaterial({
+              map: vtex,
+              side: THREE.DoubleSide, // visible from both front/back
+              toneMapped: false, // keep video colors as-is
             });
+
             const rect = new THREE.Mesh(geometry, material);
             rect.position.set(px, py, pz);
             rect.lookAt(0, 0, 0);
-            rect.userData.pageNumber = i + 1;
-
-            // Front label
-            const textMaterialFront = new THREE.MeshLambertMaterial({
-              map: makeNumberTexture(i + 1),
-              transparent: false,
-              side: THREE.FrontSide,
-            });
-            const textRectFront = new THREE.Mesh(geometry, textMaterialFront);
-            textRectFront.position.copy(rect.position);
-            textRectFront.lookAt(0, 0, 0);
-            textRectFront.position.add(
-              textRectFront
-                .getWorldDirection(new THREE.Vector3())
-                .multiplyScalar(0.01)
-            );
-            textRectFront.userData.pageNumber = i + 1;
-
-            // Back label
-            const textMaterialBack = new THREE.MeshLambertMaterial({
-              map: makeNumberTexture(i + 1),
-              transparent: false,
-              side: THREE.FrontSide,
-            });
-            const textRectBack = new THREE.Mesh(geometry, textMaterialBack);
-            textRectBack.position.copy(rect.position);
-            textRectBack.lookAt(0, 0, 0);
-            textRectBack.rotateY(Math.PI);
-            textRectBack.position.add(
-              textRectBack
-                .getWorldDirection(new THREE.Vector3())
-                .multiplyScalar(0.01)
-            );
-            textRectBack.userData.pageNumber = i + 1;
+            rect.userData.pageNumber = pageNumber;
 
             // Corner squares
             const squareSize = 0.13;
@@ -684,10 +978,11 @@
               this.group.add(sq);
             }
 
+            // Optional: small border/edge accent (keep your corner squares if you like)
+            // ...
+
             this.group.add(rect);
-            this.group.add(textRectFront);
-            this.group.add(textRectBack);
-            this.rects.push(rect, textRectFront, textRectBack);
+            this.rects.push(rect);
           }
 
           this.group.rotation.y = Math.PI / 8;
@@ -715,6 +1010,8 @@
           this.targetScroll = 0;
           this.scrollVelocity = 0;
           this.lastFrameTime = performance.now();
+          this.overlayShowThreshold = 0.94; // show when below 94%
+          this.overlayHideThreshold = 0.98; // hide when above 98%
 
           // Objects
           this.asterisk = AsteriskCreator.createAsterisk(1.5, 0x0000);
@@ -722,28 +1019,90 @@
           this.orbitingRects = new OrbitingRectanglesManager();
           this.sceneManager.addObject(this.orbitingRects.group);
 
-          // Grab DOM refs BEFORE starting the loop
+          // Overlay/video refs
           this.overlay = document.getElementById("start-overlay");
           this.overlayActive = true;
 
+          this.introVideo = document.getElementById("introVideo");
+          this.introPlayBtn = document.getElementById("introPlayBtn");
+          this.introMuteBtn = document.getElementById("introMuteToggle");
+
+          // Video state
+          this.introPlaying = !!this.introVideo;
+          this.lastVideoTime = 0;
+          this.lastOverlayHideAt = null;
+          this.userApprovedAudio = false; // set to true on any user media click
+
+          // Init video
+          if (this.introVideo) {
+            const v = this.introVideo;
+            v.muted = true;
+            v.playsInline = true;
+
+            const tryAutoplay = () => {
+              v.play().catch(() => {
+                if (this.introPlayBtn) this.introPlayBtn.hidden = false;
+              });
+            };
+            if (v.readyState >= 2) {
+              tryAutoplay();
+            } else {
+              v.addEventListener("canplay", tryAutoplay, { once: true });
+            }
+
+            // Keep track of current time while visible
+            v.addEventListener("timeupdate", () => {
+              if (!this.overlayActive) return;
+              this.lastVideoTime = v.currentTime || 0;
+            });
+
+            v.addEventListener("ended", () => this.onIntroVideoEnd());
+          }
+
+          if (this.introPlayBtn) {
+            this.introPlayBtn.addEventListener("click", () => {
+              this.introPlayBtn.hidden = true;
+              const v = this.introVideo;
+              if (!v) return;
+              v.muted = false;
+              this.userApprovedAudio = true;
+              v.play().catch(() => {});
+              this.updateMuteButtonIcon();
+            });
+          }
+
+          if (this.introMuteBtn) {
+            this.introMuteBtn.addEventListener("click", () => {
+              const v = this.introVideo;
+              if (!v) return;
+              v.muted = !v.muted;
+              if (!v.muted) this.userApprovedAudio = true;
+              v.play().catch(() => {}); // ensure playback resumes if needed
+              this.updateMuteButtonIcon();
+            });
+          }
+
+          // Gallery refs
           this.galleryEl = document.getElementById("galleryOverlay");
           this.galleryScroller = document.getElementById("galleryScroll");
           this.closeGalleryBtn = document.getElementById("closeGalleryBtn");
-          this.closeGalleryBtn.addEventListener("click", () =>
-            this.closeGallery()
-          );
+          if (this.closeGalleryBtn) {
+            this.closeGalleryBtn.addEventListener("click", () =>
+              this.closeGallery()
+            );
+          }
 
           // UI and input
           this.setupUI();
           this.setupScroll();
           this.addRotateListeners();
 
-          // Animations (callbacks can be added now, loop still not started)
+          // Animations
           this.sceneManager.addAnimationCallback(() => this.animateAsterisk());
           this.sceneManager.addAnimationCallback(() => this.animateRects());
           this.sceneManager.addAnimationCallback(() => this.smoothScrollStep());
 
-          // Start the loop LAST, after refs exist
+          // Start loop
           this.sceneManager.animate();
 
           // Rotate zoom-out easing
@@ -761,27 +1120,163 @@
           this.addRotateListeners();
 
           // Gallery progressive state
-          this.galleryEl = document.getElementById("galleryOverlay");
-          this.galleryScroller = document.getElementById("galleryScroll");
-          this.closeGalleryBtn = document.getElementById("closeGalleryBtn");
+          this.galleryProgress = 0;
+          this.galleryProgressTarget = 0;
+          this.galleryPull = 0;
+          this.galleryDeadSpace = 800;
+          this.galleryLift = 1;
 
-          this.galleryProgress = 0; // 0..1 rendered
-          this.galleryProgressTarget = 0; // 0..1 target
-          this.galleryPull = 0; // accumulated extra scroll past zoom end
-          this.galleryDeadSpace = 220; // dead space before lifting
-          this.galleryLift = 520; // distance to fully open after dead space
+          // Auto-scroll tween after video end
+          this.autoScrollTween = null;
 
-          this.closeGalleryBtn.addEventListener("click", () =>
-            this.closeGallery()
-          );
+          this.updateMuteButtonIcon();
         }
 
+        modalIsOpen() {
+          const m = document.getElementById("projectModal");
+          return !!(m && m.classList.contains("is-open"));
+        }
+
+        eventIsInsideModal(e) {
+          const t = e.target;
+          if (t && typeof t.closest === "function") {
+            if (t.closest("#projectModal")) return true;
+          }
+          // Fallback for some browsers
+          const path = e.composedPath ? e.composedPath() : [];
+          return path.some(
+            (el) => el && el.nodeType === 1 && el.id === "projectModal"
+          );
+        }
+        updateMuteButtonIcon() {
+          if (!this.introMuteBtn || !this.introVideo) return;
+          this.introMuteBtn.textContent = this.introVideo.muted ? "🔇" : "🔊";
+        }
+
+        onOverlayShown() {
+          // Do not show the play button when re-entering
+          if (this.introPlayBtn) {
+            this.introPlayBtn.hidden = true;
+            this.introPlayBtn.style.display = "none";
+          }
+
+          if (!this.introVideo) return;
+
+          // Auto-resume if user returned within 10s, otherwise restart
+          const now = performance.now();
+          const recentlyHidden =
+            this.lastOverlayHiddenAt && now - this.lastOverlayHiddenAt <= 10000;
+
+          // Autoplay reliably by starting muted (we’ll restore prior mute state after play starts)
+          const prevMuted = this.introVideo.muted;
+          this.introVideo.muted = true;
+
+          const resumeOrRestart = () => {
+            try {
+              if (
+                recentlyHidden &&
+                !this.introVideo.ended &&
+                this.introVideo.currentTime > 0
+              ) {
+                // resume
+                this.introVideo
+                  .play()
+                  ?.then(() => {
+                    // restore previous mute state
+                    this.introVideo.muted = prevMuted;
+                  })
+                  .catch(() => {
+                    /* ignore */
+                  });
+              } else {
+                // restart
+                this.introVideo.currentTime = 0;
+                this.introVideo
+                  .play()
+                  ?.then(() => {
+                    this.introVideo.muted = prevMuted;
+                  })
+                  .catch(() => {
+                    /* ignore */
+                  });
+              }
+            } catch (e) {
+              /* ignore */
+            }
+          };
+
+          resumeOrRestart();
+        }
+
+        onOverlayHidden() {
+          // Track when we hid it, store last video time
+          this.lastOverlayHiddenAt = performance.now();
+          const v = this.introVideo;
+          if (!v) return;
+          this.lastVideoTime = v.currentTime || 0;
+          v.pause();
+          this.introPlaying = false;
+        }
+
+        skipIntro(cause = "scroll") {
+          if (!this.overlay) return;
+          if (!this.overlayActive) return;
+
+          this.overlay.classList.add("hidden");
+          this.overlayActive = false;
+          this.onOverlayHidden();
+
+          // Optionally nudge scroll a little on skip to indicate movement
+          if (cause !== "ended") {
+            const smallNudge = this.maxOverlayScroll * 0.25;
+            this.targetScroll = Math.min(
+              this.maxOverlayScroll + this.maxZoomScroll,
+              this.targetScroll + smallNudge
+            );
+          }
+        }
+
+        onIntroVideoEnd() {
+          // Fade overlay away
+          if (this.overlay) {
+            this.overlay.classList.add("hidden");
+            this.overlayActive = false;
+          }
+          this.onOverlayHidden();
+
+          // Slow auto-scroll to a wider framed view (~62% of zoom)
+          this.autoScrollToFraction(0.62, 3500);
+        }
+
+        autoScrollToFraction(fraction, durationMs = 3000) {
+          const clamped = Math.max(0, Math.min(1, fraction));
+          const target = this.maxOverlayScroll + this.maxZoomScroll * clamped;
+
+          this.autoScrollTween = {
+            start: this.targetScroll,
+            end: target,
+            startTime: performance.now(),
+            duration: durationMs,
+          };
+        }
+
+        // UI: toggle rotation button
         setupUI() {
           this.toggleBtn.addEventListener("click", () => {
             this.rotationEnabled = !this.rotationEnabled;
             this.toggleBtn.textContent = this.rotationEnabled
               ? "Pause Rotation"
               : "Resume Rotation";
+          });
+
+          window.addEventListener("keydown", (e) => {
+            if (e.code === "Space" || e.key === " ") {
+              e.preventDefault();
+              this.rotationEnabled = !this.rotationEnabled;
+              this.toggleBtn.textContent = this.rotationEnabled
+                ? "Pause Rotation"
+                : "Resume Rotation";
+            }
           });
         }
 
@@ -810,14 +1305,30 @@
           window.addEventListener(
             "wheel",
             (e) => {
+              // Check modal FIRST, before any other logic
+              const modal = document.getElementById("projectModal");
+              if (modal && modal.classList.contains("is-open")) {
+                // Let browser handle scrolling in the modal
+                return;
+              }
+
               const dy = e.deltaY;
+
+              if (this.overlayActive && this.introPlaying) {
+                e.preventDefault();
+                if (dy > 0) {
+                  this.skipIntro("scroll");
+                } else {
+                  this.targetScroll = Math.max(0, this.targetScroll - 8);
+                }
+                return;
+              }
 
               // If fully open, scroll inside gallery
               if (this.galleryProgress >= 0.999) {
                 e.preventDefault();
                 const prev = this.galleryScroller.scrollTop;
                 this.galleryScroller.scrollTop += dy;
-                // At top and scrolling up -> start closing
                 if (
                   dy < 0 &&
                   this.galleryScroller.scrollTop <= 0 &&
@@ -862,7 +1373,7 @@
                 return;
               }
 
-              // Normal 3D scroll before hitting the end
+              // Normal 3D scroll
               e.preventDefault();
               nudge3D(dy > 0 ? 8 : -8);
             },
@@ -871,6 +1382,19 @@
 
           // Keyboard
           window.addEventListener("keydown", (e) => {
+            // Skip on keys while intro active
+            if (this.overlayActive && this.introPlaying) {
+              if (
+                e.key === "ArrowDown" ||
+                e.key === "PageDown" ||
+                e.key === " "
+              ) {
+                e.preventDefault();
+                this.skipIntro("key");
+                return;
+              }
+            }
+
             if (this.galleryProgress >= 0.999) {
               if (e.key === "PageDown" || e.key === "ArrowDown") {
                 e.preventDefault();
@@ -961,6 +1485,13 @@
               const dy = lastTouchY - e.touches[0].clientY; // positive = swipe up
               lastTouchY = e.touches[0].clientY;
 
+              // Skip on first touch move while intro active
+              if (this.overlayActive && this.introPlaying) {
+                e.preventDefault();
+                this.skipIntro("touch");
+                return;
+              }
+
               if (this.galleryProgress >= 0.999) {
                 this.galleryScroller.scrollTop += dy;
                 const atTop = this.galleryScroller.scrollTop <= 0;
@@ -1014,7 +1545,6 @@
         }
 
         openGallery() {
-          // helper if needed
           this.galleryPull = this.galleryDeadSpace + this.galleryLift;
           this.galleryProgressTarget = 1;
         }
@@ -1066,6 +1596,15 @@
           const dt = Math.min(1, (now - this.lastFrameTime) / 16.67);
           this.lastFrameTime = now;
 
+          // Auto scroll tween after video end
+          if (this.autoScrollTween) {
+            const { start, end, startTime, duration } = this.autoScrollTween;
+            const t = Math.min(1, (now - startTime) / duration);
+            const k = easeInOutCubic(t);
+            this.targetScroll = start + (end - start) * k;
+            if (t >= 1) this.autoScrollTween = null;
+          }
+
           const diff = this.targetScroll - this.scrollAccumulator;
           this.scrollVelocity += diff * 0.16 * dt;
           this.scrollVelocity *= 0.68;
@@ -1078,18 +1617,70 @@
             )
           );
 
-          // Overlay fade
+          const overlayProgress = Math.min(
+            1,
+            this.scrollAccumulator / this.maxOverlayScroll
+          );
+          // Normalize progress up to the hide threshold so opacity hits 0 exactly when we hide
+          const p = Math.min(
+            1,
+            this.scrollAccumulator /
+              (this.maxOverlayScroll * this.overlayHideThreshold)
+          );
+
+          // While overlay is active, tie opacity to scroll directly
+          if (this.overlayActive) {
+            if (this.overlay) {
+              // kill transitions so there is no “trailing” fade
+              this.overlay.style.transition = "opacity 0s linear";
+              this.overlay.style.opacity = String(1 - p);
+            }
+            if (this.introVideo) {
+              this.introVideo.style.transition = "opacity 0s linear";
+              this.introVideo.style.opacity = String(1 - p);
+            }
+          }
+
           if (this.overlay) {
-            const overlayProgress = Math.min(
-              1,
-              this.scrollAccumulator / this.maxOverlayScroll
-            );
-            if (overlayProgress >= 1 && this.overlayActive) {
-              this.overlay.classList.add("hidden");
-              this.overlayActive = false;
-            } else if (overlayProgress < 1 && !this.overlayActive) {
+            // Show only when we are clearly back in the overlay zone
+            if (
+              !this.overlayActive &&
+              overlayProgress < this.overlayShowThreshold
+            ) {
               this.overlay.classList.remove("hidden");
               this.overlayActive = true;
+              // existing show branch
+              this.overlay.classList.remove("hidden");
+              this.overlayActive = true;
+              this.onOverlayShown?.();
+
+              // ensure fully visible and scroll-synced
+              if (this.overlay) {
+                this.overlay.style.transition = "opacity 0s linear";
+                this.overlay.style.opacity = "1";
+              }
+              if (this.introVideo) {
+                this.introVideo.style.transition = "opacity 0s linear";
+                this.introVideo.style.opacity = "1";
+              }
+              this.onOverlayShown();
+            }
+            // Hide only when we are clearly out of the overlay zone
+            else if (
+              this.overlayActive &&
+              overlayProgress > this.overlayHideThreshold
+            ) {
+              this.overlay.classList.add("hidden");
+              this.overlayActive = false;
+              // existing hide branch
+              this.overlay.classList.add("hidden");
+              this.overlayActive = false;
+              this.onOverlayHidden?.();
+
+              // ensure fully hidden now
+              if (this.overlay) this.overlay.style.opacity = "0";
+              if (this.introVideo) this.introVideo.style.opacity = "0";
+              this.onOverlayHidden();
             }
           }
 
@@ -1103,12 +1694,10 @@
 
           // Camera position
           const minZ = this.getMinCameraZ();
-          theMaxZ: {
-          }
           const maxZ = this.getMaxCameraZ();
           let z = minZ + (maxZ - minZ) * zoomProgress;
 
-          // Camera zoom-out while rotating (slow and smooth)
+          // Camera zoom while rotating
           if (this.targetZoom !== null) {
             if (this.currentZoom === null) this.currentZoom = z;
             this.currentZoom +=
@@ -1126,7 +1715,7 @@
             this.currentZoom = null;
           }
 
-          // Interpolate camera position and orientation
+          // Interpolate camera position/orientation
           if (zoomProgress < 0.05) {
             this.sceneManager.camera.position.copy(
               this.sceneManager.initialPosition
@@ -1196,9 +1785,9 @@
           }
 
           // Apply transform and opacity
-          const y = 100 - this.galleryProgress * 100; // 100% -> 0%
+          const y = 100 - this.galleryProgress * 100;
           this.galleryEl.style.transform = `translateX(-50%) translateY(${y}%)`;
-          const op = 0.2 + this.galleryProgress * 0.8; // fade from 0.2 -> 1
+          const op = 0.2 + this.galleryProgress * 0.8;
           this.galleryEl.style.opacity = op.toFixed(3);
 
           // Enable interactions only when almost fully open
@@ -1216,7 +1805,8 @@
         }
       }
 
-      new App();
+      const app = new App();
+      window.App = app;
     </script>
   </body>
 </html>
